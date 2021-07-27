@@ -1,0 +1,6 @@
+{
+        "name": "Retrieve_sat_details",
+        "method": "POST",
+        "url": "http://retrieve_sat_details_3:8080"
+}
+

@@ -1,0 +1,26 @@
+{
+  "initiators": [
+    {
+      "type": "runlog",
+      "params": {
+        "address": "0xAD3806E2BFF5Ff86e7529561A40FA792F48a8255"
+      }
+    }
+  ],
+  "tasks": [
+
+    {
+      "type": "retrieve_sat_details"
+    },
+    {
+      "type": "ethtx",
+      "confirmations": null,
+      "params": {
+      }
+    }
+
+  ],
+  "startAt": null,
+  "endAt": null
+}
+

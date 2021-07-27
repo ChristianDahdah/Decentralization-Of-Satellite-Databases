@@ -1,0 +1,70 @@
+version: '3'
+
+services:
+  retrieve_sat_details_1:
+    image: retrieve_sat_details
+    env_file:
+      - ./.honest_node_1/.env
+
+  retrieve_sat_details_2:
+    image: retrieve_sat_details
+    env_file:
+      - ./.honest_node_2/.env
+
+  retrieve_sat_details_3:
+    image: retrieve_sat_details
+    env_file:
+      - ./.honest_node_3/.env
+
+  retrieve_sat_details_4:
+    image: retrieve_sat_details
+    env_file:
+      - ./.bad_node_1/.env
+
+  honest_node_1:
+    image: smartcontract/chainlink:latest
+    ports:
+      - "6687:6688"
+    env_file:
+      - ./.chainlink_common/.env
+      - ./.honest_node_1/.env
+    volumes:
+      - ./.honest_node_1:/chainlink
+      - ./.chainlink_common:/chainlink_common
+    command: local n -p /chainlink_common/.password -a /chainlink_common/.api
+
+  honest_node_2:
+    image: smartcontract/chainlink:latest
+    ports:
+      - "6686:6688"
+    env_file:
+      - ./.chainlink_common/.env
+      - ./.honest_node_2/.env
+    volumes:
+      - ./.honest_node_2:/chainlink
+      - ./.chainlink_common:/chainlink_common
+    command: local n -p /chainlink_common/.password -a /chainlink_common/.api
+
+  honest_node_3:
+    image: smartcontract/chainlink:latest
+    ports:
+      - "6685:6688"
+    env_file:
+      - ./.chainlink_common/.env
+      - ./.honest_node_3/.env
+    volumes:
+      - ./.honest_node_3:/chainlink
+      - ./.chainlink_common:/chainlink_common
+    command: local n -p /chainlink_common/.password -a /chainlink_common/.api
+
+  bad_node_1:
+    image: smartcontract/chainlink:latest
+    ports:
+      - "6684:6688"
+    env_file:
+      - ./.chainlink_common/.env
+      - ./.bad_node_1/.env
+    volumes:
+      - ./.bad_node_1:/chainlink
+      - ./.chainlink_common:/chainlink_common
+    command: local n -p /chainlink_common/.password -a /chainlink_common/.api

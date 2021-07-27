@@ -1,0 +1,76 @@
+dc-run() {
+
+# Retrivieng all docker containers' names
+all_containers=$(docker ps --format "{{.Names}}")
+
+# Transforming result into 
+# IFS=' ' read -r -a ALL_DOCKER <<< "$(echo $ALL_DOCKER)"
+
+# Getting request
+if [[ $1 == "all" ]]
+then
+
+	filter_value=""
+
+elif [[ $1 == "nodes" ]]
+then
+
+        filter_value="node"
+
+elif [[ $1 == "honest_nodes" ]]
+then
+
+	filter_value="honest"
+
+elif [[ $1 == "bad_nodes" ]]
+then
+
+	filter_value="bad"
+
+elif [[ $1 == "help" ]]
+then
+	
+	printf "\nUSAGE:\n"
+	echo "   dc-run [target option] '[command]'"
+	printf "\nEXAMPLE:\n"
+	echo "   dc-run nodes 'chainlink bridges create bridge.json'"
+	echo ""
+	echo "The [target options] available are:"
+	echo "   all           applies command to all running containers"
+	echo "   nodes         applies command to all chainlink nodes"
+	echo "   honest_nodes  applies command to all honest chainlink nodes"
+	echo "   bad_nodes     applies command to all bad chainlink nodes"
+	printf "\nBONUS FUNCTION to login to targeted chainlink nodes: \n   dc-run [target option] login \n \n"
+	return 0
+
+else
+	printf "No proper argument. Run 'dc-run help' to see the options \n"
+	return 0
+fi
+
+
+# Helper options
+if [[ $2 == "login" ]]
+then
+
+	command="chainlink admin login -f /chainlink_common/.api"
+
+else
+	command=$2
+
+fi
+
+printf "\n The command is: $command \n"
+
+
+# Applying command
+for docker_container in $all_containers
+do
+	if [[ $docker_container == *"$filter_value"*  ]]
+	then
+		echo "Container: $docker_container"
+		echo $(docker exec $docker_container $command)
+	fi
+done
+
+}

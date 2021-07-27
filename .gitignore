@@ -1,0 +1,10 @@
+*.env
+*.jsonl
+**/secret
+**/tempkeys/
+*.api
+*.password
+*.swp
+*.zip
+cookie
+cookiefile
