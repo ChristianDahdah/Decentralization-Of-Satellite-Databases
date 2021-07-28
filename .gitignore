@@ -6,5 +6,7 @@
 *.password
 *.swp
 *.zip
+*.postgres_password
+**/.postgres_database/
 cookie
 cookiefile

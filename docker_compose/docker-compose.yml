@@ -1,6 +1,15 @@
 version: '3'
 
 services:
+  postgres_link:
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.postgres_database:/var/lib/postgresql/data
+    env_file:
+      - ./.postgres_password 
+
   retrieve_sat_details_1:
     image: retrieve_sat_details
     env_file:
@@ -32,6 +41,9 @@ services:
       - ./.honest_node_1:/chainlink
       - ./.chainlink_common:/chainlink_common
     command: local n -p /chainlink_common/.password -a /chainlink_common/.api
+    depends_on:
+      - "postgres_link"
+      - "retrieve_sat_details_1"
 
   honest_node_2:
     image: smartcontract/chainlink:latest
@@ -44,6 +56,9 @@ services:
       - ./.honest_node_2:/chainlink
       - ./.chainlink_common:/chainlink_common
     command: local n -p /chainlink_common/.password -a /chainlink_common/.api
+    depends_on:
+      - "postgres_link"
+      - "retrieve_sat_details_2"
 
   honest_node_3:
     image: smartcontract/chainlink:latest
@@ -56,6 +71,9 @@ services:
       - ./.honest_node_3:/chainlink
       - ./.chainlink_common:/chainlink_common
     command: local n -p /chainlink_common/.password -a /chainlink_common/.api
+    depends_on:
+      - "postgres_link"
+      - "retrieve_sat_details_3"
 
   bad_node_1:
     image: smartcontract/chainlink:latest
@@ -68,3 +86,6 @@ services:
       - ./.bad_node_1:/chainlink
       - ./.chainlink_common:/chainlink_common
     command: local n -p /chainlink_common/.password -a /chainlink_common/.api
+    depends_on:
+      - "postgres_link"
+      - "retrieve_sat_details_4"
