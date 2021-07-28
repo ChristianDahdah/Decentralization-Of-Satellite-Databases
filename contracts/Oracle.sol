@@ -1,252 +1,326 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.6;
 
-import "./ChainlinkClient.sol";
+import "@chainlink/contracts/src/v0.6/LinkTokenReceiver.sol";
+import "@chainlink/contracts/src/v0.6/interfaces/ChainlinkRequestInterface.sol";
+import "@chainlink/contracts/src/v0.6/interfaces/OracleInterface.sol";
+import "@chainlink/contracts/src/v0.6/interfaces/LinkTokenInterface.sol";
+import "@chainlink/contracts/src/v0.6/interfaces/WithdrawalInterface.sol";
 import "@chainlink/contracts/src/v0.6/vendor/Ownable.sol";
-import "./Median.sol";
+import "@chainlink/contracts/src/v0.6/vendor/SafeMathChainlink.sol";
 
-contract TLEClient is ChainlinkClient, Ownable {
-  uint256 constant private ORACLE_PAYMENT = 1 * LINK;
+/**
+ * @title The Chainlink Oracle contract
+ * @notice Node operators can deploy this contract to fulfill requests sent to them
+ */
+contract Oracle is ChainlinkRequestInterface, OracleInterface, Ownable, LinkTokenReceiver, WithdrawalInterface {
+  using SafeMathChainlink for uint256;
 
-  /*
-    Structures and mapping related to the final information preserved
-  */
-  struct satDetailsStruct{
-      bytes12 name; // Maximum 12 characters
-      bytes4 nationality; // 4 bytes <==> 4 letters per country max
-      uint32 apogee; // apogee in meters
-      uint32 perigee; // perigee in meters
-      uint32 inclination; // inclination * 1000
-      uint32 launchDate; // Number of seconds since 4 octobre 1957 00:00 am (launch day of Sputnik 1)
-  }
-
-  // mapping (bytes12 => uint256) satNameToId;
   
-  mapping (uint256 => satDetailsStruct) satDetailsMapping;
-  
-  
-  /*
-    Information related to the consensus
-  */
-  
-  struct occurenceStruct{
-      mapping (bytes4 => uint8) nationalityOcc;
-      mapping (bytes12 => uint8) nameOcc;
-      uint32[] apogeeOcc;
-      uint32[] perigeeOcc;
-      uint32[] inclinationOcc;
-      uint32[] launchDateOcc;
-      // Needed to track who answered to not let him submit multiple times
-      mapping (address => bool) participants;
+  struct responsesStruct {
+      // Counting responses for each requests
+      uint count;
+      // Keeping track of the addresses that responded
+      mapping(address => bool) repliedAddresses;
   }
   
-  // maps sat id to the occurences
-  mapping (uint256 => occurenceStruct) satOccurenceMapping;
-  
-  // maps requestId to the satId
-  mapping (bytes32 => uint256) requestSatIdMapping;
-  
-
-  constructor() public Ownable() {
-    setPublicChainlinkToken();
-  }
-
-// block.number
-  
-  
-  /* TO BE COMPLETED  */
-  
-  function requestSatDetails(address _oracle, string memory _jobId, uint _satId) public onlyOwner
-  {
-
-    /*  
-        Should add a line to specify the amount of replies
-        Should add a line to delete request after a time period
-    */
-    string memory satId = uint2str(_satId);
-    Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), address(this), this.fulfillSatDetails.selector);
-    req.add("satId", satId);
-    bytes32 requestId = sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
-    requestSatIdMapping[requestId] = _satId;
-  }  
-  
-  
-  function fulfillSatDetails(bytes32 _requestId, uint _data) public recordChainlinkFulfillment(_requestId)
-  {
-    
-    uint _satId = requestSatIdMapping[_requestId];
-    
-    // Checking if address already answered
-    // require(satOccurenceMapping[_satId].participants[msg.sender]==false, "Oracle already answered");
-    
-    // Unpacking variables
-    (bytes4 _nationality, bytes12 _name, uint32 _apogee, uint32 _perigee, uint32 _inclination, uint32 _launchDate) = decodeInput(_data);
-    
-    satOccurenceMapping[_satId].participants[msg.sender]=true;
-    
-    /* Updating relative fields */
-    
-    // Updating the occurences of details
-    satOccurenceMapping[_satId].nationalityOcc[_nationality] += 1;
-    satOccurenceMapping[_satId].nameOcc[_name] += 1;
-    
-    satOccurenceMapping[_satId].apogeeOcc.push(_apogee);
-    satOccurenceMapping[_satId].perigeeOcc.push(_perigee);
-    satOccurenceMapping[_satId].inclinationOcc.push(_inclination);
-    satOccurenceMapping[_satId].launchDateOcc.push(_launchDate);
-    
-    // Doing consensus on the values emitted
-    consensusSatDetails(_satId, _nationality, _name);
-    
-    // emit RequestSatNameFulfilled(_requestId, convertedString);
-  }
-  
+  // Mapping of request and responses
+  mapping (bytes32 => responsesStruct) private responses;
  
-  
-  function decodeInput(uint _data) pure internal returns (bytes4 _nationality, bytes12 _name, uint32 _apogee, uint32 _perigee, uint32 _inclination, uint32 _launchDate) {
-        
-        // Declarations of (_satId, _nationality ...) were made in the return  
-        assembly {
-        /* Old values */
-        //   _satId := sar(224, _data)
-        //   _nationality := add(0x0, shl(32, _data))
-        //   _apogee := sar(160, _data)
-        //   _perigee := sar(128, _data)
-        //   _inclination := sar(96, _data)
-        
-        _nationality := add(0x0, _data)
-        _name := add(0x0, shl(32, _data))
-        _apogee := sar(96, _data)
-        _perigee := sar(64, _data)
-        _inclination := sar(32, _data)
-        // Number of seconds since 4 octobre 1957 00:00 am (launch day of Sputnik 1)
-        _launchDate := sar(0, _data)
-        
-        }
-      
-  }
-  
-  /*  TO BE COMPLETED */
-  
-  function consensusSatDetails(uint256 _satId, bytes4 _nationality, bytes12 _name) internal {
-      // Checking if number of replies is sufficient
-      if (satOccurenceMapping[_satId].apogeeOcc.length >= 3){
-        satDetailsMapping[_satId].apogee = Median.calculateInplace(satOccurenceMapping[_satId].apogeeOcc);
-        satDetailsMapping[_satId].perigee = Median.calculateInplace(satOccurenceMapping[_satId].perigeeOcc);
-        satDetailsMapping[_satId].inclination = Median.calculateInplace(satOccurenceMapping[_satId].inclinationOcc);
-        satDetailsMapping[_satId].launchDate = Median.calculateInplace(satOccurenceMapping[_satId].launchDateOcc);
-        
-        
-      // Update nationality only if enough addresses agree on the same one
-      if(satOccurenceMapping[_satId].nationalityOcc[_nationality] >= 3 /* && satDetailsMapping[_satId].nationality == "" */){
-         satDetailsMapping[_satId].nationality = _nationality;
-      }
-      
-      // Update name only if enough addresses agree on the same one
-      if(satOccurenceMapping[_satId].nameOcc[_name] >= 3 /* && satDetailsMapping[_satId].name == "" */){
-         satDetailsMapping[_satId].name = _name;
-      // satNameToId[_name] = _satId;
-      }
-          
-      }
-  }
-  
+  uint256 constant public EXPIRY_TIME = 5 minutes;
+  uint256 constant private MINIMUM_CONSUMER_GAS_LIMIT = 400000;
+ 
+  // We initialize fields to 1 instead of 0 so that the first invocation
+  // does not cost more gas.
+  uint256 constant private ONE_FOR_CONSISTENT_GAS_COST = 1;
 
-  function getChainlinkToken() public view returns (address) {
-    return chainlinkTokenAddress();
+  LinkTokenInterface internal LinkToken;
+  mapping(bytes32 => bytes32) private commitments;
+  mapping(address => bool) private authorizedNodes;
+  uint256 private withdrawableTokens = ONE_FOR_CONSISTENT_GAS_COST;
+
+  event OracleRequest(
+    bytes32 indexed specId,
+    address requester,
+    bytes32 requestId,
+    uint256 payment,
+    address callbackAddr,
+    bytes4 callbackFunctionId,
+    uint256 cancelExpiration,
+    uint256 dataVersion,
+    bytes data
+  );
+
+  event CancelOracleRequest(
+    bytes32 indexed requestId
+  );
+
+  /**
+   * @notice Deploy with the address of the LINK token
+   * @dev Sets the LinkToken address for the imported LinkTokenInterface
+   * @param _link The address of the LINK token
+   */
+  constructor(address _link)
+    public
+    Ownable()
+  {
+    LinkToken = LinkTokenInterface(_link); // external but already deployed and unalterable
   }
 
-  function withdrawLink() public onlyOwner {
-    LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
-    require(link.transfer(msg.sender, link.balanceOf(address(this))), "Unable to transfer");
+  /**
+   * @notice Creates the Chainlink request
+   * @dev Stores the hash of the params as the on-chain commitment for the request.
+   * Emits OracleRequest event for the Chainlink node to detect.
+   * @param _sender The sender of the request
+   * @param _payment The amount of payment given (specified in wei)
+   * @param _specId The Job Specification ID
+   * @param _callbackAddress The callback address for the response
+   * @param _callbackFunctionId The callback function ID for the response
+   * @param _nonce The nonce sent by the requester
+   * @param _dataVersion The specified data version
+   * @param _data The CBOR payload of the request
+   */
+  function oracleRequest(
+    address _sender,
+    uint256 _payment,
+    bytes32 _specId,
+    address _callbackAddress,
+    bytes4 _callbackFunctionId,
+    uint256 _nonce,
+    uint256 _dataVersion,
+    bytes calldata _data
+  )
+    external
+    override
+    onlyLINK()
+    checkCallbackAddress(_callbackAddress)
+  {
+    bytes32 requestId = keccak256(abi.encodePacked(_sender, _nonce));
+    require(commitments[requestId] == 0, "Must use a unique ID");
+    // solhint-disable-next-line not-rely-on-time
+    uint256 expiration = now.add(EXPIRY_TIME);
+
+    commitments[requestId] = keccak256(
+      abi.encodePacked(
+        _payment,
+        _callbackAddress,
+        _callbackFunctionId,
+        expiration
+      )
+    );
+
+    emit OracleRequest(
+      _specId,
+      _sender,
+      requestId,
+      _payment,
+      _callbackAddress,
+      _callbackFunctionId,
+      expiration,
+      _dataVersion,
+      _data);
   }
 
-  function cancelRequest(
+  /**
+   * @notice Called by the Chainlink node to fulfill requests
+   * @dev Given params must hash back to the commitment stored from `oracleRequest`.
+   * Will call the callback address' callback function without bubbling up error
+   * checking in a `require` so that the node can get paid.
+   * @param _requestId The fulfillment request ID that must match the requester's
+   * @param _payment The payment amount that will be released for the oracle (specified in wei)
+   * @param _callbackAddress The callback address to call for fulfillment
+   * @param _callbackFunctionId The callback function ID to use for fulfillment
+   * @param _expiration The expiration that the node should respond by before the requester can cancel
+   * @param _data The data to return to the consuming contract
+   * @return Status if the external call was successful
+   */
+  function fulfillOracleRequest(
     bytes32 _requestId,
     uint256 _payment,
+    address _callbackAddress,
     bytes4 _callbackFunctionId,
+    uint256 _expiration,
+    bytes32 _data
+  )
+    external
+    onlyAuthorizedNode
+    override
+    isValidRequest(_requestId)
+    returns (bool)
+  {
+    bytes32 paramsHash = keccak256(
+      abi.encodePacked(
+        _payment,
+        _callbackAddress,
+        _callbackFunctionId,
+        _expiration
+      )
+    );
+    require(commitments[_requestId] == paramsHash, "Params do not match request ID");
+    // Checking if the address sender haven't responded yet
+    require(responses[_requestId].repliedAddresses[msg.sender] == false);
+    responses[_requestId].repliedAddresses[msg.sender] = true;
+    
+    withdrawableTokens = withdrawableTokens.add(_payment);
+    
+    // Do not delete commitments unless got 4 replies
+    responses[_requestId].count += 1;
+    if (responses[_requestId].count == 4){
+        delete commitments[_requestId];
+	    delete responses[_requestId]; 
+    }
+    
+    require(gasleft() >= MINIMUM_CONSUMER_GAS_LIMIT, "Must provide consumer enough gas");
+    // All updates to the oracle's fulfillment should come before calling the
+    // callback(addr+functionId) as it is untrusted.
+    // See: https://solidity.readthedocs.io/en/develop/security-considerations.html#use-the-checks-effects-interactions-pattern
+    (bool success, ) = _callbackAddress.call(abi.encodeWithSelector(_callbackFunctionId, _requestId, _data)); // solhint-disable-line avoid-low-level-calls
+    return success;
+  }
+
+  /**
+   * @notice Use this to check if a node is authorized for fulfilling requests
+   * @param _node The address of the Chainlink node
+   * @return The authorization status of the node
+   */
+  function getAuthorizationStatus(address _node)
+    external
+    view
+    override
+    returns (bool)
+  {
+    return authorizedNodes[_node];
+  }
+
+  /**
+   * @notice Sets the fulfillment permission for a given node. Use `true` to allow, `false` to disallow.
+   * @param _node The address of the Chainlink node
+   * @param _allowed Bool value to determine if the node can fulfill requests
+   */
+  function setFulfillmentPermission(address _node, bool _allowed)
+    external
+    override
+    onlyOwner()
+  {
+    authorizedNodes[_node] = _allowed;
+  }
+
+  /**
+   * @notice Allows the node operator to withdraw earned LINK to a given address
+   * @dev The owner of the contract can be another wallet and does not have to be a Chainlink node
+   * @param _recipient The address to send the LINK token to
+   * @param _amount The amount to send (specified in wei)
+   */
+  function withdraw(address _recipient, uint256 _amount)
+    external
+    override(OracleInterface, WithdrawalInterface)
+    onlyOwner
+    hasAvailableFunds(_amount)
+  {
+    withdrawableTokens = withdrawableTokens.sub(_amount);
+    assert(LinkToken.transfer(_recipient, _amount));
+  }
+
+  /**
+   * @notice Displays the amount of LINK that is available for the node operator to withdraw
+   * @dev We use `ONE_FOR_CONSISTENT_GAS_COST` in place of 0 in storage
+   * @return The amount of withdrawable LINK on the contract
+   */
+  function withdrawable()
+    external
+    view
+    override(OracleInterface, WithdrawalInterface)
+    onlyOwner()
+    returns (uint256)
+  {
+    return withdrawableTokens.sub(ONE_FOR_CONSISTENT_GAS_COST);
+  }
+
+  /**
+   * @notice Allows requesters to cancel requests sent to this oracle contract. Will transfer the LINK
+   * sent for the request back to the requester's address.
+   * @dev Given params must hash to a commitment stored on the contract in order for the request to be valid
+   * Emits CancelOracleRequest event.
+   * @param _requestId The request ID
+   * @param _payment The amount of payment given (specified in wei)
+   * @param _callbackFunc The requester's specified callback address
+   * @param _expiration The time of the expiration for the request
+   */
+  function cancelOracleRequest(
+    bytes32 _requestId,
+    uint256 _payment,
+    bytes4 _callbackFunc,
     uint256 _expiration
   )
-    public
-    onlyOwner
+    external
+    override
   {
-    cancelChainlinkRequest(_requestId, _payment, _callbackFunctionId, _expiration);
-  }
-  
-  
-  
-  // Helper functions
-  function stringToBytes32(string memory source) private pure returns (bytes32 result) {
-    bytes memory tempEmptyStringTest = bytes(source);
-    if (tempEmptyStringTest.length == 0) {
-      return 0x0;
-    }
+    bytes32 paramsHash = keccak256(
+      abi.encodePacked(
+        _payment,
+        msg.sender,
+        _callbackFunc,
+        _expiration)
+    );
+    require(paramsHash == commitments[_requestId], "Params do not match request ID");
+    // solhint-disable-next-line not-rely-on-time
+    require(_expiration <= now, "Request is not expired");
 
-    assembly { // solhint-disable-line no-inline-assembly
-      result := mload(add(source, 32))
-    }
-  }
-  
-  function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
-        uint8 i = 0;
-        bytes memory bytesArray = new bytes(i);
-        for (i = 0; i < 32 && _bytes32[i] != 0; i++) {
-            bytesArray[i] = _bytes32[i];
-        }
-        return string(bytesArray);
-    }
-  
-function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
-        if (_i == 0) {
-            return "0";
-        }
-        uint j = _i;
-        uint len;
-        while (j != 0) {
-            len++;
-            j /= 10;
-        }
-        bytes memory bstr = new bytes(len);
-        uint k = len;
-        while (_i != 0) {
-            k = k-1;
-            uint8 temp = (48 + uint8(_i - _i / 10 * 10));
-            bytes1 b1 = bytes1(temp);
-            bstr[k] = b1;
-            _i /= 10;
-        }
-        return string(bstr);
-    }
+    delete commitments[_requestId];
+    emit CancelOracleRequest(_requestId);
 
-    
-    function viewSatDetails (uint _satId) view public returns (uint satId, bytes12 name, bytes4 nationality, uint32 apogee, uint32 perigee, uint32 inclination, uint32 launchDate){
-    
-        satId = _satId;
-        name = satDetailsMapping[_satId].name;
-        nationality = satDetailsMapping[_satId].nationality;
-        apogee = satDetailsMapping[_satId].apogee;
-        perigee = satDetailsMapping[_satId].perigee;
-        inclination = satDetailsMapping[_satId].inclination;
-        launchDate = satDetailsMapping[_satId].launchDate;
-           
-    }
-    
-    function viewOccurenceInt (uint256 _satId, uint32 _pos) public view returns (uint32 apogee, uint32 perigee, uint32 inclination, uint32 launchDate){
-        
-        apogee = satOccurenceMapping[_satId].apogeeOcc[_pos];
-        perigee = satOccurenceMapping[_satId].perigeeOcc[_pos];
-        inclination = satOccurenceMapping[_satId].inclinationOcc[_pos];
-        launchDate = satOccurenceMapping[_satId].launchDateOcc[_pos];
-        
-    }
-    
-    function viewConsensus (uint256 _satId) public view returns (uint32 apogee, uint32 perigee, uint32 inclination, uint32 launchDate){
-        
-        apogee = Median.calculateInplace(satOccurenceMapping[_satId].apogeeOcc);
-        perigee = Median.calculateInplace(satOccurenceMapping[_satId].perigeeOcc);
-        inclination = Median.calculateInplace(satOccurenceMapping[_satId].inclinationOcc);
-        launchDate = Median.calculateInplace(satOccurenceMapping[_satId].launchDateOcc);
-        
-    }
-  
+    assert(LinkToken.transfer(msg.sender, _payment));
+  }
+
+  /**
+   * @notice Returns the address of the LINK token
+   * @dev This is the public implementation for chainlinkTokenAddress, which is
+   * an internal method of the ChainlinkClient contract
+   */
+  function getChainlinkToken()
+    public
+    view
+    override
+    returns (address)
+  {
+    return address(LinkToken);
+  }
+
+  // MODIFIERS
+
+  /**
+   * @dev Reverts if amount requested is greater than withdrawable balance
+   * @param _amount The given amount to compare to `withdrawableTokens`
+   */
+  modifier hasAvailableFunds(uint256 _amount) {
+    require(withdrawableTokens >= _amount.add(ONE_FOR_CONSISTENT_GAS_COST), "Amount requested is greater than withdrawable balance");
+    _;
+  }
+
+  /**
+   * @dev Reverts if request ID does not exist
+   * @param _requestId The given request ID to check in stored `commitments`
+   */
+  modifier isValidRequest(bytes32 _requestId) {
+    require(commitments[_requestId] != 0, "Must have a valid requestId");
+    _;
+  }
+
+  /**
+   * @dev Reverts if `msg.sender` is not authorized to fulfill requests
+   */
+  modifier onlyAuthorizedNode() {
+    require(authorizedNodes[msg.sender] || msg.sender == owner(), "Not an authorized node to fulfill requests");
+    _;
+  }
+
+  /**
+   * @dev Reverts if the callback address is the LINK token
+   * @param _to The callback address
+   */
+  modifier checkCallbackAddress(address _to) {
+    require(_to != address(LinkToken), "Cannot callback to LINK");
+    _;
+  }
+
 }
