@@ -5,7 +5,7 @@ import "./ChainlinkClient.sol";
 import "@chainlink/contracts/src/v0.6/vendor/Ownable.sol";
 import "./Median.sol";
 
-contract TLEClient is ChainlinkClient, Ownable {
+contract SatDetails is ChainlinkClient, Ownable {
   uint256 constant private ORACLE_PAYMENT = 1 * LINK;
 
   /*
