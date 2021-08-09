@@ -1,0 +1,34 @@
+<div>
+
+    <table class="table table-hover", id="databases">
+        <thead class="thead-dark">
+   	<tr>
+	   	<th> Database </th> 
+		
+		{% for key in sat_details_keys %}
+			<th>{{ key }}</th>
+		{% empty %}
+		{% endfor %}
+
+
+         	{% for database, details in sat_details.items %}
+			
+                	<tr>
+				<td> {{ database }} </td>
+				
+				{% for key, value in details.items %}
+				
+					<td> {{ value }} </td>
+				
+				{% empty %}
+				{% endfor %}
+
+                	</tr>
+
+		{% empty %}
+            	{% endfor %}
+        
+	</thead>
+    </table>
+
+</div>
