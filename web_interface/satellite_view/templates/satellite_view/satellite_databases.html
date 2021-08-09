@@ -1,0 +1,34 @@
+<table class="table table-hover", id="satellite_databases">
+	<thead class="thead-dark">
+        <tr>
+                <th>Database</th>
+                <th>Name</th>
+                <th>Country</th>
+                <th>Apogee</th>
+                <th>Perigee</th>
+                <th>Inclination</th>
+                <th>Launch Date</th>
+
+        {% for database, details in sat_details.items %}
+
+                <tr>
+                        <td> {{ database }} </td>
+
+                        {% for key, value in details.items %}
+
+                                <td> {{ value }} </td>
+
+                        {% empty %}
+
+                                <td></td>
+
+                        {% endfor %}
+
+                </tr>
+
+        {% empty %}
+        {% endfor %}
+
+	</thead>
+</table>
+

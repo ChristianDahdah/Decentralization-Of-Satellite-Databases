@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <title>{% block title %} Base {% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% load static %}
+    <script src="{% static "jquery-2.0.0.min.js" %}"></script>
+    <script src="{% static "search_satellite_databases.js" %}" %}></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    {% block meta %} {% endblock %}
+</head>
+
+
+<body>
+
+
+<div>
+    
+	{% csrf_token %} 
+    	<input type="text" id="satellite_id" name="satellite_id"/>	
+    
+    	<table class="table table-hover", id="satellite_databases">
+        	<thead class="thead-dark">
+        	<tr>
+			<th>Database</th>
+			<th>Name</th>
+			<th>Country</th>
+			<th>Apogee</th>
+			<th>Perigee</th>
+			<th>Inclination</th>
+			<th>Launch Date</th>
+
+                {% for database, details in sat_details.items %}
+
+                        <tr>
+                                <td> {{ database }} </td>
+
+                                {% for key, value in details.items %}
+
+                                        <td> {{ value }} </td>
+
+                                {% empty %}
+				
+					<td></td>
+                                
+				{% endfor %}
+
+                        </tr>
+
+                {% empty %}
+                {% endfor %}
+
+        </thead>
+    </table>
+
+</div>
+</body>
+

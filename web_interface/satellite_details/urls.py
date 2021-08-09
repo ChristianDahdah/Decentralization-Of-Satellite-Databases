@@ -19,5 +19,6 @@ from satellite_view import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('satellite_demo/', views.satellite_view)
+    path('satellite_demo/', views.satellite_demo),
+    path('satellite_demo/search_satellite_databases', views.get_satellite_databases)
 ]
