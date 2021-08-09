@@ -8,5 +8,6 @@
 *.zip
 *.postgres_password
 **/.postgres_database/
+**/.postgres_database_test/
 cookie
 cookiefile
