@@ -50,6 +50,12 @@ contract Oracle is ChainlinkRequestInterface, OracleInterface, Ownable, LinkToke
     uint256 dataVersion,
     bytes data
   );
+  
+  event FulfilledRequest(
+    bytes32 indexed requestId,
+    address indexed chainlinkNode,
+    bytes32 data
+  );
 
   event CancelOracleRequest(
     bytes32 indexed requestId
@@ -166,7 +172,7 @@ contract Oracle is ChainlinkRequestInterface, OracleInterface, Ownable, LinkToke
     // Do not delete commitments unless got 4 replies
     responses[_requestId].count += 1;
     if (responses[_requestId].count == 4){
-        delete commitments[_requestId];
+            delete commitments[_requestId];
 	    delete responses[_requestId]; 
     }
     
@@ -175,6 +181,9 @@ contract Oracle is ChainlinkRequestInterface, OracleInterface, Ownable, LinkToke
     // callback(addr+functionId) as it is untrusted.
     // See: https://solidity.readthedocs.io/en/develop/security-considerations.html#use-the-checks-effects-interactions-pattern
     (bool success, ) = _callbackAddress.call(abi.encodeWithSelector(_callbackFunctionId, _requestId, _data)); // solhint-disable-line avoid-low-level-calls
+    
+    emit FulfilledRequest(_requestId, msg.sender, _data);
+    
     return success;
   }
 
