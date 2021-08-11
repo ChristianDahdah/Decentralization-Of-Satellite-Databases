@@ -4,8 +4,11 @@
     <title>{% block title %} Base {% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% load static %}
-    <script src="{% static "jquery-2.0.0.min.js" %}"></script>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+    <script src="{% static "satDetails_abi.js" %}" %}></script>
     <script src="{% static "search_satellite_databases.js" %}" %}></script>
+    <script src="{% static "get_block_number.js" %}" %}></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     {% block meta %} {% endblock %}
 </head>
@@ -54,5 +57,34 @@
     </table>
 
 </div>
+
+<div>
+	<p id="block_number"></p>
+
+</div>
+
+
+
+<script>
+window.addEventListener('load', function() {
+
+  // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+  if (typeof web3 !== 'undefined') {
+    // Use Mist/MetaMask's provider
+    web3js = new Web3(web3.currentProvider);
+  } else {
+    // Handle the case where the user doesn't have web3. Probably
+    // show them a message telling them to install Metamask in
+    // order to use our app.
+	  alert("INSTALL METAMASK TO SEND TRANSACTIONS")
+  }
+
+  // Now you can start your app & access web3js freely:
+  startApp()
+
+})
+</script>
+
+
 </body>
 
