@@ -51,18 +51,14 @@ contract SatDetails is ChainlinkClient, Ownable {
     setPublicChainlinkToken();
   }
 
-// block.number
   
-  
-  /* TO BE COMPLETED  */
-  
+  event SatConsensus(
+    uint indexed _satId
+  );
+
+ 
   function requestSatDetails(address _oracle, string memory _jobId, uint _satId) public onlyOwner
   {
-
-    /*  
-        Should add a line to specify the amount of replies
-        Should add a line to delete request after a time period
-    */
     string memory satId = uint2str(_satId);
     Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), address(this), this.fulfillSatDetails.selector);
     req.add("satId", satId);
@@ -126,8 +122,6 @@ contract SatDetails is ChainlinkClient, Ownable {
       
   }
   
-  /*  TO BE COMPLETED */
-  
   function consensusSatDetails(uint256 _satId, bytes4 _nationality, bytes12 _name) internal {
       // Checking if number of replies is sufficient
       if (satOccurenceMapping[_satId].apogeeOcc.length >= 3){
@@ -147,7 +141,7 @@ contract SatDetails is ChainlinkClient, Ownable {
          satDetailsMapping[_satId].name = _name;
       // satNameToId[_name] = _satId;
       }
-          
+          emit SatConsensus(_satId);
       }
   }
   
@@ -172,7 +166,6 @@ contract SatDetails is ChainlinkClient, Ownable {
   {
     cancelChainlinkRequest(_requestId, _payment, _callbackFunctionId, _expiration);
   }
-  
   
   
   // Helper functions
