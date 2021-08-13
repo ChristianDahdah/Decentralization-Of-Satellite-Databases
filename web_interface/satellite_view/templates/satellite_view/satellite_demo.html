@@ -14,9 +14,13 @@
     {% block meta %} {% endblock %}
 
     <style>
+	:root{
+	  --leftshift: calc(50% - 652px);
+	}
+
 	.middleBlock  {
 	  position: relative;
-	  left: 10px;
+	  left: var(--leftshift);
 	  animation: right-to-left 3s ease-in-out forwards 3;
 	  animation-delay: 2s;
 	  animation-play-state: running;
@@ -24,7 +28,7 @@
 	
 	.leftBlock {
           position: relative;
-          left: 10px;
+          left: var(--leftshift);
           animation: right-to-left-hide 3s ease-in-out forwards 3;
           animation-delay: 2s;
 	  animation-play-state: running;
@@ -32,7 +36,7 @@
 
 	.rightBlock {
           position: relative;
-          left: 10px;
+          left: var(--leftshift);
 	  opacity: 0;
           animation:  pop-up 3s ease-in-out forwards 3;
           animation-delay: 2s;
@@ -41,61 +45,61 @@
 	
         @keyframes right-to-left {
           0% {
-            left: 10px;
+            left: var(--leftshift);
           }
 
           33% {
-            left: 10px;
+            left: var(--leftshift);
           }
 
           100% {
-            left: -118px;
+            left: calc(var(--leftshift) - 163px);
           }
         }
 
 	@keyframes right-to-left-hide {
 	  0% {
-	    left: 10px;
+	    left: var(--leftshift);
 	    opacity: 100;
 	  }
 
           33% {
-            left: 10px;
+            left: var(--leftshift);
             opacity: 100;
           }
 
 	  
 	  100% {
-	    left: -118px;
+	    left: calc(var(--leftshift) - 163px);
 	    opacity: 0;
 	  }
 	}
 	
 	@keyframes pop-up {
 	  0% {
-	    left: 10px;
+	    left: var(--leftshift);
 	    opacity: 0;
 	  }
 
 	  33% {
-	    left: 10px;
+	    left: var(--leftshift);
 	    opacity: 100;
 	  }
 	  100% {
-	    left: -118px;
+            left: calc(var(--leftshift) - 163px);
 	    opacity: 100;
 	  }
 
 	}
 
 	img.block {
-		width: 100px;
-		height: 75px;
+		width: 130px;
+		height: 90px;
 	}
 
 	img.chain {
-		width: 20px;
-		height: 10px;
+		width: 24px;
+		height: 12px;
 	}
 
     </style>
@@ -155,6 +159,12 @@
 
 <div name="Blockchain animation">
 <span class="leftBlock">
+    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
+    <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" id="Blockn-4" class="block" alt="block">
+</span>
+
+
+<span class="middleBlock">
     <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
     <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" id="Blockn-3" class="block" alt="block">
 </span>
