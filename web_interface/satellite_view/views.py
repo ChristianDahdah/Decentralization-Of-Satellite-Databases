@@ -74,6 +74,11 @@ def get_satellite_databases(request):
 
 
 def satellite_demo(request):
+    
+    satDetails_address = os.getenv("SATDETAILS_ADDRESS")
+    # oracle_address = os.getenv("ORACLE_ADDRESS")
+    
+    infura_url = os.getenv("INFURA_URL")
 
     return render(request, 'satellite_view/satellite_demo.html', locals())
 

@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <title>{% block title %} Base {% endblock %}</title>
+    <title>{% block title %} Satellite Demo {% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% load static %}
     <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+	<script language="javascript" type="text/javascript" src="{% static "web3.min.js" %}"></script>
     <script src="{% static "satDetails_abi.js" %}" %}></script>
     <script src="{% static "oracle_abi.js" %}" %}></script>
     <script src="{% static "search_satellite_databases.js" %}" %}></script>
-    <script src="{% static "get_block_number.js" %}" %}></script>
+    {# <script src="{% static "get_block_number.js" %}" %}></script> #}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     {% block meta %} {% endblock %}
 </head>
@@ -61,29 +61,65 @@
 
 <div>
 	<p id="block_number"></p>
-
 </div>
 
 
 
 <script>
+
+var satDetails;
+var userAccount;
+
+function startApp() {
+	var satDetailsAddress = {{ satDetails_address }};
+	// satDetails = new web3js.eth.Contract(satDetailsABI, satDetailsAddress);
+
+	setInterval(function() {
+  	// Check if account has changed
+		web3Infura.eth.getBlockNumber().then((data) => { $('#block_number').html(data) }) ;
+	}, 1500);
+
+}
+
+
+async function onInit() {
+        await window.ethereum.enable();
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+        console.log(account)
+         window.ethereum.on('accountsChanged', function (accounts) {
+            // Time to reload your interface with accounts[0]!
+            console.log(accounts[0])
+           });
+    }
+
+
+
+
 window.addEventListener('load', function() {
 
   // Checking if Web3 has been injected by the browser (Mist/MetaMask)
   if (typeof web3 !== 'undefined') {
     // Use Mist/MetaMask's provider
     web3js = new Web3(web3.currentProvider);
+    web3Infura = new Web3(
+    // Replace YOUR-PROJECT-ID with a Project ID from your Infura Dashboard
+	    new Web3.providers.WebsocketProvider("{{ infura_url }}")
+);
   } else {
     // Handle the case where the user doesn't have web3. Probably
     // show them a message telling them to install Metamask in
     // order to use our app.
-	  alert("INSTALL METAMASK TO SEND TRANSACTIONS")
+	  alert("INSTALL METAMASK TO SEND TRANSACTIONS");
   }
 
   // Now you can start your app & access web3js freely:
-  startApp()
+  onInit();
+  startApp();
 
 })
+
+
 </script>
 
 

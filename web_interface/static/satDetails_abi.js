@@ -1,4 +1,4 @@
-
+var satDetailsABI = [
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",

@@ -6,6 +6,7 @@
 *.password
 *.swp
 *.zip
+*.pyc
 *.postgres_password
 **/.postgres_database/
 **/.postgres_database_test/
