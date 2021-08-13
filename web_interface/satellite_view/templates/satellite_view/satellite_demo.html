@@ -12,6 +12,95 @@
     {# <script src="{% static "get_block_number.js" %}" %}></script> #}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     {% block meta %} {% endblock %}
+
+    <style>
+	.middleBlock  {
+	  position: relative;
+	  left: 10px;
+	  animation: right-to-left 3s ease-in-out forwards 3;
+	  animation-delay: 2s;
+	  animation-play-state: running;
+	}
+	
+	.leftBlock {
+          position: relative;
+          left: 10px;
+          animation: right-to-left-hide 3s ease-in-out forwards 3;
+          animation-delay: 2s;
+	  animation-play-state: running;
+	}
+
+	.rightBlock {
+          position: relative;
+          left: 10px;
+	  opacity: 0;
+          animation:  pop-up 3s ease-in-out forwards 3;
+          animation-delay: 2s;
+	  animation-play-state: running;
+	}
+	
+        @keyframes right-to-left {
+          0% {
+            left: 10px;
+          }
+
+          33% {
+            left: 10px;
+          }
+
+          100% {
+            left: -118px;
+          }
+        }
+
+	@keyframes right-to-left-hide {
+	  0% {
+	    left: 10px;
+	    opacity: 100;
+	  }
+
+          33% {
+            left: 10px;
+            opacity: 100;
+          }
+
+	  
+	  100% {
+	    left: -118px;
+	    opacity: 0;
+	  }
+	}
+	
+	@keyframes pop-up {
+	  0% {
+	    left: 10px;
+	    opacity: 0;
+	  }
+
+	  33% {
+	    left: 10px;
+	    opacity: 100;
+	  }
+	  100% {
+	    left: -118px;
+	    opacity: 100;
+	  }
+
+	}
+
+	img.block {
+		width: 100px;
+		height: 75px;
+	}
+
+	img.chain {
+		width: 20px;
+		height: 10px;
+	}
+
+    </style>
+
+
 </head>
 
 
@@ -64,11 +153,39 @@
 </div>
 
 
+<div name="Blockchain animation">
+<span class="leftBlock">
+    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
+    <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" id="Blockn-3" class="block" alt="block">
+</span>
+
+
+<span class="middleBlock">
+    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain"> 
+    <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" id="Blockn-2" class="block" alt="block">
+</span>
+
+<span class="middleBlock">
+    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
+    <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" id="Blockn-1" class="block" alt="block">
+</span>
+
+<span class="rightBlock">
+    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
+    <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" id="Blockn" class="block" alt="block">
+</span>
+
+
+</div>
+
+
 
 <script>
 
 var satDetails;
 var userAccount;
+var currentBlock;
+var lastUpdatedBlock = 0;
 
 function startApp() {
 	var satDetailsAddress = {{ satDetails_address }};
@@ -76,7 +193,14 @@ function startApp() {
 
 	setInterval(function() {
   	// Check if account has changed
-		web3Infura.eth.getBlockNumber().then((data) => { $('#block_number').html(data) }) ;
+		web3Infura.eth.getBlockNumber().then((data) => {
+			// $('#block_number').html(data);
+			currentBlock = Number(data);
+			if (lastUpdatedBlock != currentBlock){
+				lastUpdatedBlock = currentBlock;
+				// moveblock(currentBlock);
+			}
+		}) ;
 	}, 1500);
 
 }
@@ -118,7 +242,6 @@ window.addEventListener('load', function() {
   startApp();
 
 })
-
 
 </script>
 
