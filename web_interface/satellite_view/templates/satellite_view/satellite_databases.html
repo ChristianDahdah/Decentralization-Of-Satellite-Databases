@@ -12,7 +12,17 @@
         {% for database, details in sat_details.items %}
 
                 <tr>
-                        <td> {{ database }} </td>
+
+			{% if database == "honest_node_1" %}
+                                <td> CNES </td>
+                        {% elif database == "honest_node_2" %}
+                                <td> NASA </td>
+                        {% elif database == "honest_node_3" %}
+                                <td> Roscosmos </td>
+                        {% elif database == "bad_node_1" %}
+                                <td style="color: red"> Bad node  </td>
+                        {% endif %}
+
 
                         {% for key, value in details.items %}
 
@@ -26,7 +36,8 @@
 
                 </tr>
 
-        {% empty %}
+        {% empty %}	
+
         {% endfor %}
 
 	</thead>

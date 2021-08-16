@@ -74,11 +74,27 @@ def get_satellite_databases(request):
 
 
 def satellite_demo(request):
-    
+   
     satDetails_address = os.getenv("SATDETAILS_ADDRESS")
-    # oracle_address = os.getenv("ORACLE_ADDRESS")
+    
+    oracle_address = os.getenv("ORACLE_ADDRESS")
     
     infura_url = os.getenv("INFURA_URL")
+
+
+    # used to initialise table for aesthetics
+    databases = ['honest_node_1', 'honest_node_2', 'honest_node_3', 'bad_node_1']
+
+    sat_details_keys = ['name', 'nationality', 'apogee', 'perigee', 'inclination', 'launchDate']
+
+    sat_details = {}
+
+    for database in databases:
+        sat_details[database] = {}
+
+        for key in sat_details_keys:
+            sat_details[database][key] = '-'
+
 
     return render(request, 'satellite_view/satellite_demo.html', locals())
 
