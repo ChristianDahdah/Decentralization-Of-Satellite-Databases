@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% load static %}
     <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-	<script language="javascript" type="text/javascript" src="{% static "web3.min.js" %}"></script>
+    <script language="javascript" type="text/javascript" src="{% static "web3.min.js" %}"></script>
     <script src="{% static "satDetails_abi.js" %}" %}></script>
     <script src="{% static "oracle_abi.js" %}" %}></script>
     <script src="{% static "search_satellite_databases.js" %}" %}></script>
@@ -14,32 +14,41 @@
     {% block meta %} {% endblock %}
 
     <style>
+
+	.blockNumber{
+		position: absolute;
+		left: 91px;
+		transform: translate(-50%, 0%);
+	}
+
+        .leftBlock, .middleBlock, .rightBlock{
+          position: relative;
+          left: var(--leftshift);
+        }
+	
+	.rightBlock{
+	  opacity: 0;
+	}
+
 	:root{
 	  --leftshift: calc(50% - 652px);
 	}
-
-	.middleBlock  {
-	  position: relative;
-	  left: var(--leftshift);
-	  animation: right-to-left 3s ease-in-out forwards 3;
-	  animation-delay: 2s;
+	
+	.middleBlockAnimation  {
+	  animation: right-to-left 2.5s ease-in-out forwards;
+	  animation-delay: 0s;
 	  animation-play-state: running;
 	}
 	
-	.leftBlock {
-          position: relative;
-          left: var(--leftshift);
-          animation: right-to-left-hide 3s ease-in-out forwards 3;
-          animation-delay: 2s;
+	.leftBlockAnimation {
+          animation: right-to-left-hide 2.5s ease-in-out forwards;
+          animation-delay: 0s;
 	  animation-play-state: running;
 	}
 
-	.rightBlock {
-          position: relative;
-          left: var(--leftshift);
-	  opacity: 0;
-          animation:  pop-up 3s ease-in-out forwards 3;
-          animation-delay: 2s;
+	.rightBlockAnimation {
+          animation:  pop-up 2.5s ease-in-out forwards;
+          animation-delay: 0s;
 	  animation-play-state: running;
 	}
 	
@@ -157,34 +166,48 @@
 </div>
 
 
-<div name="Blockchain animation">
-<span class="leftBlock">
-    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
-    <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" id="Blockn-4" class="block" alt="block">
-</span>
+<div id="Blockchain animation">
+	
+	<span class="leftBlock" style="display: inline-block">
+	    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
+	    <div style="display: inline">
+	    	<img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block">
+			<p class="blockNumber", id="blockn-4"> # </p>
+	    </div> 
+	</span>
+
+	<span class="middleBlock">
+	    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
+            <div style="display: inline">
+                <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block">
+                <p class="blockNumber", id="blockn-3"> # </p>
+            </div>
+	</span>
 
 
-<span class="middleBlock">
-    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
-    <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" id="Blockn-3" class="block" alt="block">
-</span>
+	<span class="middleBlock">
+	    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain"> 
+            <div style="display: inline">
+                <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block">
+                <p class="blockNumber", id="blockn-2"> # </p>
+            </div>
+	</span>
 
+	<span class="middleBlock">
+	    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
+            <div style="display: inline">
+                <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block">
+                <p class="blockNumber", id="blockn-1"> # </p>
+            </div>
+	</span>
 
-<span class="middleBlock">
-    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain"> 
-    <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" id="Blockn-2" class="block" alt="block">
-</span>
-
-<span class="middleBlock">
-    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
-    <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" id="Blockn-1" class="block" alt="block">
-</span>
-
-<span class="rightBlock">
-    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
-    <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" id="Blockn" class="block" alt="block">
-</span>
-
+	<span class="rightBlock">
+	    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
+	            <div style="display: inline">
+                <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block">
+                <p class="blockNumber", id="blockn"> # </p>
+            </div>
+	</span>
 
 </div>
 
@@ -197,9 +220,40 @@ var userAccount;
 var currentBlock;
 var lastUpdatedBlock = 0;
 
+
+window.addEventListener('animationend', () => {
+        $('.leftBlock').removeClass('leftBlockAnimation');
+        $('.middleBlock').removeClass('middleBlockAnimation');
+        $('.rightBlock').removeClass('rightBlockAnimation');
+
+	$('#blockn').html(currentBlock+1);
+        $('#blockn-1').html(currentBlock);
+        $('#blockn-2').html(currentBlock-1);
+        $('#blockn-3').html(currentBlock-2);
+        $('#blockn-4').html(currentBlock-3);
+
+});
+
+
+function startBlockAnimation(){
+
+	$('#blockn').html(currentBlock);
+        $('#blockn-1').html(currentBlock-1);
+        $('#blockn-2').html(currentBlock-2);
+        $('#blockn-3').html(currentBlock-3);
+        $('#blockn-4').html(currentBlock-4);
+	
+	$('.leftBlock').addClass('leftBlockAnimation');
+        $('.middleBlock').addClass('middleBlockAnimation');
+        $('.rightBlock').addClass('rightBlockAnimation');
+
+
+}
+
 function startApp() {
 	var satDetailsAddress = {{ satDetails_address }};
-	// satDetails = new web3js.eth.Contract(satDetailsABI, satDetailsAddress);
+	satDetails = new web3js.eth.Contract(satDetailsABI, satDetailsAddress);
+	oracle = new web3js.eth.Contract(oracleABI, satDetailsAddress);
 
 	setInterval(function() {
   	// Check if account has changed
@@ -208,7 +262,7 @@ function startApp() {
 			currentBlock = Number(data);
 			if (lastUpdatedBlock != currentBlock){
 				lastUpdatedBlock = currentBlock;
-				// moveblock(currentBlock);
+				 startBlockAnimation();
 			}
 		}) ;
 	}, 1500);
@@ -228,8 +282,6 @@ async function onInit() {
     }
 
 
-
-
 window.addEventListener('load', function() {
 
   // Checking if Web3 has been injected by the browser (Mist/MetaMask)
@@ -244,7 +296,7 @@ window.addEventListener('load', function() {
     // Handle the case where the user doesn't have web3. Probably
     // show them a message telling them to install Metamask in
     // order to use our app.
-	  alert("INSTALL METAMASK TO SEND TRANSACTIONS");
+	  alert("INSTALL METAMASK IN ORDER TO SEND TRANSACTIONS");
   }
 
   // Now you can start your app & access web3js freely:
