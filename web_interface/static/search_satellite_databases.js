@@ -1,6 +1,6 @@
 $(function(){
 
-    $('#satellite_id').keyup(function() {
+    $('#search_databases').click(function() {
     
         $.ajax({
             type: "POST",
