@@ -1,3 +1,7 @@
+-- Creating a database for the web interface
+
+CREATE DATABASE django WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'en_US.utf8';
+
 -- Honest node 1 
 
 CREATE DATABASE honest_node_1 WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'en_US.utf8';
@@ -34,11 +38,13 @@ ALTER TABLE public.sat_details OWNER TO postgres;
 INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('2', 'SPUTNIK 1', 'CIS', '1080000', '64000', '65000', '1957-10-04');
 
 
+INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('23606', 'CERISE', 'FR', '584000', '577000', '98290', '1995-07-07');
+
+
 INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('48953', 'ARTHUR-1', 'BEL', '534000', '513000', '97510', '2021-06-30');
 
 
 INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('48979', 'ONEWEB-0261', 'UK', '463000', '451000', '87410', '2021-07-01');
-
 
 
 -- Honest node 2
@@ -75,13 +81,16 @@ CREATE TABLE public.sat_details (
 ALTER TABLE public.sat_details OWNER TO postgres;
 
 
-INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('2', 'SPUTNIK 1', 'CIS', '1080000', '64000', '65000', '1957-10-04');
+INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('2', 'SPUTNIK 1', 'CIS', '1082000', '64050', '65200', '1957-10-04');
 
 
-INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('48953', 'ARTHUR-1', 'BEL', '534000', '513000', '97510', '2021-06-30');
+INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('23606', 'CERISE', 'FR', '583000', '576000', '98400', '1995-07-07');
 
 
-INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('48979', 'ONEWEB-0261', 'UK', '463000', '451000', '87410', '2021-07-01');
+INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('48953', 'ARTHUR-1', 'BEL', '535000', '515000', '97550', '2021-06-30');
+
+
+INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('48979', 'ONEWEB-0261', 'UK', '463500', '451200', '87410', '2021-07-01');
 
 
 
@@ -121,13 +130,16 @@ ALTER TABLE public.sat_details OWNER TO postgres;
 
 
 
-INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('2', 'SPUTNIK 1', 'CIS', '1080000', '64000', '65000', '1957-10-04');
+INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('2', 'SPUTNIK 1', 'CIS', '1079000', '63800', '64800', '1957-10-04');
 
 
-INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('48953', 'ARTHUR-1', 'BEL', '534000', '513000', '97510', '2021-06-30');
+INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('23606', 'CERISE', 'FR', '583500', '575000', '98280', '1995-07-07');
 
 
-INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('48979', 'ONEWEB-0261', 'UK', '463000', '451000', '87410', '2021-07-01');
+INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('48953', 'ARTHUR-1', 'BEL', '534900', '513500', '97440', '2021-06-30');
+
+
+INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('48979', 'ONEWEB-0261', 'UK', '462000', '451000', '87200', '2021-07-01');
 
 
 
@@ -172,4 +184,3 @@ INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclin
 
 
 INSERT INTO public.sat_details(satId, name, nationality, apogee, perigee, inclination, launchDate) VALUES ('48979', 'WEB', 'POL', '1000', '1000', '1000', '2000-01-01');
-
