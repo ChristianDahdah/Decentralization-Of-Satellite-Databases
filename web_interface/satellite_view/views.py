@@ -72,8 +72,9 @@ def satellite_demo(request):
     
     oracle_address = os.getenv("ORACLE_ADDRESS")
     
-    infura_url = os.getenv("INFURA_URL")
+    job_id = os.getenv("JOB_ID")
 
+    infura_url = os.getenv("INFURA_URL")
 
     # used to initialise table for aesthetics
     databases = ['honest_node_1', 'honest_node_2', 'honest_node_3', 'bad_node_1']
