@@ -322,21 +322,41 @@ $('#view_consensus').click(function(){
 		.call({from: userAccount})
 		.then(function(satConsensus){
 
+			var myEle = document.getElementById(id);
+
+			if (myEle){
+
+					
+				$(`#${id}`).html(
+				`
+					<td> ${id} </td>
+					<td> ${satConsensus.name} </td>
+					<td> ${satConsensus.nationality} </td>
+					<td> ${satConsensus.apogee} </td>
+					<td> ${satConsensus.perigee} </td>
+					<td> ${satConsensus.inclination} </td>
+					<td> ${satConsensus.launchDay}-${satConsensus.launchMonth}-${satConsensus.launchYear} </td>
+				`);
+
+			}
 			
-			$('#satellite_consensus').append(
-			`
-                        <tr id=${id}>
+			else {
 
-                                <td> ${id} </td>
-                                <td> ${satConsensus.name} </td>
-                                <td> ${satConsensus.nationality} </td>
-                                <td> ${satConsensus.apogee} </td>
-                                <td> ${satConsensus.perigee} </td>
-                                <td> ${satConsensus.inclination} </td>
-                                <td> ${satConsensus.launchDay}-${satConsensus.launchMonth}-${satConsensus.launchYear} </td>
+				$('#satellite_consensus').append(
+				`
+					<tr id=${id}>
 
-                        </tr>
-			`);
+						<td> ${id} </td>
+						<td> ${satConsensus.name} </td>
+						<td> ${satConsensus.nationality} </td>
+						<td> ${satConsensus.apogee} </td>
+						<td> ${satConsensus.perigee} </td>
+						<td> ${satConsensus.inclination} </td>
+						<td> ${satConsensus.launchDay}-${satConsensus.launchMonth}-${satConsensus.launchYear} </td>
+
+					</tr>
+				`);
+			}
 
 		});
 
