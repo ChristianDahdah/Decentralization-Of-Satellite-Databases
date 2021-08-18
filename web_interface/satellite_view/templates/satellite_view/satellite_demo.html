@@ -315,14 +315,30 @@ async function getSatelliteInfo(id) {
 
 
 $('#view_consensus').click(function(){
-
-	let id = $('#consensus_id').val();
 	
-	getSatelliteInfo(id).then((satConsensus) => {
+	let id = $('#consensus_id').val()
 
-                alert(satConsensus.name);
+	satDetailsContract.methods.viewSatDetails(id)
+		.call({from: userAccount})
+		.then(function(satConsensus){
 
-        });
+			
+			$('#satellite_consensus').append(
+			`
+                        <tr id=${id}>
+
+                                <td> ${id} </td>
+                                <td> ${satConsensus.name} </td>
+                                <td> ${satConsensus.nationality} </td>
+                                <td> ${satConsensus.apogee} </td>
+                                <td> ${satConsensus.perigee} </td>
+                                <td> ${satConsensus.inclination} </td>
+                                <td> ${satConsensus.launchDay}-${satConsensus.launchMonth}-${satConsensus.launchYear} </td>
+
+                        </tr>
+			`);
+
+		});
 
 });
 
