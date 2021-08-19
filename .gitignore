@@ -7,6 +7,7 @@
 *.swp
 *.zip
 *.pyc
+*.swo
 *.postgres_password
 **/.postgres_database/
 **/.postgres_database_test/
