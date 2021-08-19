@@ -5,8 +5,38 @@ import os
 from web3 import Web3
 
 
-def retrieve_db(database, key, satellite_id):
-    # Getting environment variables
+def get_node_db(request):
+    
+    assert request.method == 'GET', 'GET REQUEST METHOD REQUIRED'
+
+    database_dict = { 'CNES':'honest_node_1', 'NASA':'honest_node_2', 'ROSCOSMOS':'honest_node_3', 'bad_node_1':'bad_node_1' }
+
+    database = database_dict[request.GET['database']]
+
+    conn = db_connection(database)
+    
+    # create a cursor
+    cur = conn.cursor()
+
+    # Getting all satellite ids in a database
+    cur.execute("SELECT satid FROM sat_details")
+    
+    db_answer = cur.fetchall()
+    
+    details_by_id = {}
+    
+    sat_details_keys = ['name', 'nationality', 'apogee', 'perigee', 'inclination', 'launchDate']
+
+    for satid in db_answer:
+        details_by_id[satid[0]] = {}
+        
+        for key in sat_details_keys:
+            details_by_id[satid[0]][key] = retrieve_db(database, key, satid[0])
+
+    return render(request, 'satellite_view/single_satellite_database.html', locals())
+
+def db_connection(database):
+   # Getting environment variables
     host = os.getenv('DATABASE_IP')
     user = os.getenv('DATABASE_USER')
     password = os.getenv('DATABASE_PASSWORD')
@@ -19,7 +49,14 @@ def retrieve_db(database, key, satellite_id):
     user=user,
     password=password,
     port=port)
-        
+    
+    return conn
+
+
+def retrieve_db(database, key, satellite_id):
+    
+    conn = db_connection(database)
+
     # create command
     command = "SELECT {} FROM {} WHERE satId='{}'".format(key, 'sat_details', satellite_id)
 

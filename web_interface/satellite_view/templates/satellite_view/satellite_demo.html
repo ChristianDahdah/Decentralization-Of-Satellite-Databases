@@ -182,13 +182,13 @@
 
 				<tr>
 					{% if database == "honest_node_1" %}
-					<td> <img class="logo_cnes" src="https://www.esa.int/var/esa/storage/images/esa_multimedia/images/2009/02/cnes_logo/9496749-4-eng-GB/CNES_Logo_pillars.jpg" alt="CNES"> </td>
+					<td> <a href="/satellite_database?database=CNES"> <img class="logo_cnes" src="https://www.esa.int/var/esa/storage/images/esa_multimedia/images/2009/02/cnes_logo/9496749-4-eng-GB/CNES_Logo_pillars.jpg" alt="CNES"> </a>  </td>
 					{% elif database == "honest_node_2" %}
-					<td> <img class="logo_nasa" src="https://www.nasa.gov/sites/default/files/thumbnails/image/s75-31690.jpeg" alt="NASA"> </td>
+					<td> <a href="/satellite_database?database=NASA"> <img class="logo_nasa" src="https://www.nasa.gov/sites/default/files/thumbnails/image/s75-31690.jpeg" alt="NASA"> </a>  </td>
 					{% elif database == "honest_node_3" %}
-					<td> <img class="logo_roscosmos" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Roscosmos_logo_en.svg/1280px-Roscosmos_logo_en.svg.png" alt="ROSCOSMOS"></td>
+					<td> <a href="/satellite_database?database=ROSCOSMOS"> <img class="logo_roscosmos" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Roscosmos_logo_en.svg/1280px-Roscosmos_logo_en.svg.png" alt="ROSCOSMOS"> </a> </td>
 					{% elif database == "bad_node_1" %}
-						<td style="color: red"> Bad node  </td>
+					<td> <a style="color: red" href="/satellite_database?database=bad_node_1"> Bad node </a> </td>
 					{% endif %}
 
 					
@@ -301,7 +301,6 @@ var oracleContract;
 var userAccount;
 var currentBlock;
 var lastUpdatedBlock = 0;
-
 
 $('#send_request').click(function() {
 
@@ -440,7 +439,7 @@ function startApp() {
 				startBlockAnimation();
 			}
 		});
-	}, 1500);
+	}, 2500);
 
 }
 

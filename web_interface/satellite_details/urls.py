@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('satellite_demo/', views.satellite_demo),
     path('satellite_demo/search_satellite_databases', views.get_satellite_databases),
-    path('satellite_demo/get_block_number', views.get_block_number)
+    path('satellite_demo/get_block_number', views.get_block_number),
+    path('satellite_database', views.get_node_db)
 ]
