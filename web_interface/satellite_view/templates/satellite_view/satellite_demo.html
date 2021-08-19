@@ -105,6 +105,10 @@
 		width: 130px;
 		height: 90px;
 	}
+	
+	img.blockTransaction {
+		filter: hue-rotate(160deg) saturate(5);
+	}
 
 	img.chain {
 		width: 24px;
@@ -239,7 +243,7 @@
 	<span class="leftBlock" style="display: inline-block">
 	    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
 	    <div style="display: inline">
-	    	<img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block">
+	    	<img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block" id="blockn-4Img">
 			<p class="blockNumber", id="blockn-4"> # </p>
 	    </div> 
 	</span>
@@ -247,7 +251,7 @@
 	<span class="middleBlock">
 	    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
             <div style="display: inline">
-                <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block">
+                <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block" id="blockn-3Img">
                 <p class="blockNumber", id="blockn-3"> # </p>
             </div>
 	</span>
@@ -256,7 +260,7 @@
 	<span class="middleBlock">
 	    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain"> 
             <div style="display: inline">
-                <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block">
+                <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block" id="blockn-2Img">
                 <p class="blockNumber", id="blockn-2"> # </p>
             </div>
 	</span>
@@ -264,7 +268,7 @@
 	<span class="middleBlock">
 	    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
             <div style="display: inline">
-                <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block">
+                <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block" id="blockn-1Img">
                 <p class="blockNumber", id="blockn-1"> # </p>
             </div>
 	</span>
@@ -272,7 +276,7 @@
 	<span class="rightBlock">
 	    <img src="https://www.nicepng.com/png/detail/51-512944_chain-link-icon-chain-link-png.png" class="chain" alt="chain">
 	            <div style="display: inline">
-                <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block">
+                <img src="https://neironix.io/assets/thumbnails/b8/b8fdcdf85d401bb835b0406e4ce06795.png" class="block" alt="block" id="blocknImg">
                 <p class="blockNumber", id="blockn"> # </p>
             </div>
 	</span>
@@ -296,8 +300,10 @@ $('#send_request').click(function() {
 	satDetailsContract.methods.requestSatDetails('{{ oracle_address }}', '{{ job_id }}', $('#satellite_id').val())
         .send({from: userAccount, type:'0x2'})
         .on("receipt", function(receipt) {
-          alert("Successfully created request.");
-        })
+        
+		$('#blocknImg').addClass('blockTransaction');		
+
+	})
         .on("error", function(error) {
           // Do something to alert the user their transaction has failed
           alert("Encountered an error with the request sent.");
@@ -362,17 +368,41 @@ $('#view_consensus').click(function(){
 
 });
 
+var animations = 0;
 
 window.addEventListener('animationend', () => {
-        $('.leftBlock').removeClass('leftBlockAnimation');
-        $('.middleBlock').removeClass('middleBlockAnimation');
-        $('.rightBlock').removeClass('rightBlockAnimation');
+	
+	if (animations % 5 == 0) {
+		
+		$('.leftBlock').removeClass('leftBlockAnimation');
+		$('.middleBlock').removeClass('middleBlockAnimation');
+		$('.rightBlock').removeClass('rightBlockAnimation');
 
-	$('#blockn').html(currentBlock+1);
-        $('#blockn-1').html(currentBlock);
-        $('#blockn-2').html(currentBlock-1);
-        $('#blockn-3').html(currentBlock-2);
-        $('#blockn-4').html(currentBlock-3);
+		$('#blockn').html(currentBlock+1);
+		$('#blockn-1').html(currentBlock);
+		$('#blockn-2').html(currentBlock-1);
+		$('#blockn-3').html(currentBlock-2);
+		$('#blockn-4').html(currentBlock-3);
+		
+
+		$('#blockn-4Img').removeClass('blockTransaction');
+		$('#blockn-4Img').addClass($("#blockn-3Img").attr("class"));
+		
+		$('#blockn-3Img').removeClass('blockTransaction');
+		$('#blockn-3Img').addClass($("#blockn-2Img").attr("class"));
+		
+                $('#blockn-2Img').removeClass('blockTransaction');
+		$('#blockn-2Img').addClass($("#blockn-1Img").attr("class"));
+
+		$('#blockn-1Img').removeClass('blockTransaction');
+                $('#blockn-1Img').addClass($("#blocknImg").attr("class"));
+
+		$('#blocknImg').removeClass('blockTransaction');
+
+	}
+
+        animations = (animations + 1) % 5;
+
 
 });
 
@@ -394,7 +424,6 @@ function startBlockAnimation(){
 
 function startApp() {
 
-	console.log(satDetailsABI);
 	satDetailsContract = new web3js.eth.Contract(satDetailsABI, '{{ satDetails_address }}');
 	oracleContract = new web3js.eth.Contract(oracleABI, '{{ oracle_address }}');
 
