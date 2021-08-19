@@ -151,8 +151,12 @@
 
 
 <div class="row">
-
+	
 	<div class="col" name="left side">
+	        <div>
+        	        <h3> Local databases  </h3>
+	        </div>
+
 		<div>
 			{% csrf_token %}
 			<input type="text" id="satellite_id" name="satellite_id" placeholder="Satellite Id"/>
@@ -209,7 +213,12 @@
 
 
 	<div class="col" name="right side">
+		
+        <div>
+                <h3> On-chain databases  </h3>
+        </div>
 
+			
 			<div>
 				<input type="text" id="consensus_id" placeholder="Satellite Id"/>
                         	<button type="button" id="view_consensus" class="btn btn-primary">View consensus</button>
