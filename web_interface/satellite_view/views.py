@@ -104,7 +104,8 @@ def get_satellite_databases(request):
 
 
 def satellite_demo(request):
-   
+    
+    # Loading necessary environment variables
     satDetails_address = os.getenv("SATDETAILS_ADDRESS")
     
     oracle_address = os.getenv("ORACLE_ADDRESS")
@@ -112,6 +113,12 @@ def satellite_demo(request):
     job_id = os.getenv("JOB_ID")
 
     infura_url = os.getenv("INFURA_URL")
+
+    honest_node_1 = os.getenv("HONEST_NODE_1")
+    honest_node_2 = os.getenv("HONEST_NODE_2")
+    honest_node_3 = os.getenv("HONEST_NODE_3")
+    bad_node_1 = os.getenv("BAD_NODE_1")
+
 
     # used to initialise table for aesthetics
     databases = ['honest_node_1', 'honest_node_2', 'honest_node_3', 'bad_node_1']

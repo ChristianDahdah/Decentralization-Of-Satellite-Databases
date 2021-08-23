@@ -14,6 +14,10 @@
     {% block meta %} {% endblock %}
 
     <style>
+	
+	.greenBackgroundAnimation {
+		background-color: green;
+	}
 
 	.blockNumber{
 		position: absolute;
@@ -110,6 +114,10 @@
 		filter: hue-rotate(160deg) saturate(5);
 	}
 
+	img.blockConsensus {
+		filter: hue-rotate(270deg) saturate(5);
+	}
+
 	img.chain {
 		width: 24px;
 		height: 12px;
@@ -161,7 +169,6 @@
 			{% csrf_token %}
 			<input type="text" id="satellite_id" name="satellite_id" placeholder="Satellite Id"/>
 			<button type="button" id="search_databases" class="btn btn-primary">Search</button>
-                        <button type="button" id="send_request" class="btn btn-primary">Request</button>
 		</div>
 		
 		</br>
@@ -180,15 +187,18 @@
 
 			{% for database, details in sat_details.items %}
 
-				<tr>
 					{% if database == "honest_node_1" %}
-					<td> <a href="/satellite_database?database=CNES"> <img class="logo_cnes" src="https://www.esa.int/var/esa/storage/images/esa_multimedia/images/2009/02/cnes_logo/9496749-4-eng-GB/CNES_Logo_pillars.jpg" alt="CNES"> </a>  </td>
+					<tr id="honest_node_1">
+						<td> <a href="/satellite_database?database=CNES"> <img class="logo_cnes" src="https://www.esa.int/var/esa/storage/images/esa_multimedia/images/2009/02/cnes_logo/9496749-4-eng-GB/CNES_Logo_pillars.jpg" alt="CNES"> </a>  </td>
 					{% elif database == "honest_node_2" %}
-					<td> <a href="/satellite_database?database=NASA"> <img class="logo_nasa" src="https://www.nasa.gov/sites/default/files/thumbnails/image/s75-31690.jpeg" alt="NASA"> </a>  </td>
+					<tr id="honest_node_2">
+						<td> <a href="/satellite_database?database=NASA"> <img class="logo_nasa" src="https://www.nasa.gov/sites/default/files/thumbnails/image/s75-31690.jpeg" alt="NASA"> </a>  </td>
 					{% elif database == "honest_node_3" %}
-					<td> <a href="/satellite_database?database=ROSCOSMOS"> <img class="logo_roscosmos" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Roscosmos_logo_en.svg/1280px-Roscosmos_logo_en.svg.png" alt="ROSCOSMOS"> </a> </td>
+					<tr id="honest_node_3">
+						<td> <a href="/satellite_database?database=ROSCOSMOS"> <img class="logo_roscosmos" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Roscosmos_logo_en.svg/1280px-Roscosmos_logo_en.svg.png" alt="ROSCOSMOS"> </a> </td>
 					{% elif database == "bad_node_1" %}
-					<td> <a style="color: red" href="/satellite_database?database=bad_node_1"> Bad node </a> </td>
+					<tr id="bad_node_1">
+						<td> <a style="color: red" href="/satellite_database?database=bad_node_1"> Bad node </a> </td>
 					{% endif %}
 
 					
@@ -221,7 +231,8 @@
 			
 			<div>
 				<input type="text" id="consensus_id" placeholder="Satellite Id"/>
-                        	<button type="button" id="view_consensus" class="btn btn-primary">View consensus</button>
+	                        <button type="button" id="send_request" class="btn btn-primary">Request</button>
+				<button type="button" id="view_consensus" class="btn btn-primary">View consensus</button>
 			</div>
 
 			</br>
@@ -240,7 +251,6 @@
 				</thead>
 			</table>
         </div>
-
 
 
 </div>
@@ -301,11 +311,17 @@ var oracleContract;
 var userAccount;
 var currentBlock;
 var lastUpdatedBlock = 0;
+var web3Infura;
+var honestNode1 = {{ honest_node_1 }};
+var honestNode2 = {{ honest_node_2 }};
+var honestNode3 = {{ honest_node_3 }};
+var badNode1 = {{ bad_node_1 }};
+
 
 $('#send_request').click(function() {
 
         // Send the tx to our contract:
-	satDetailsContract.methods.requestSatDetails('{{ oracle_address }}', '{{ job_id }}', $('#satellite_id').val())
+	satDetailsContract.methods.requestSatDetails('{{ oracle_address }}', '{{ job_id }}', $('#consensus_id').val())
         .send({from: userAccount, type:'0x2'})
         .on("receipt", function(receipt) {
         
@@ -314,65 +330,65 @@ $('#send_request').click(function() {
 	})
         .on("error", function(error) {
           // Do something to alert the user their transaction has failed
-          alert("Encountered an error with the request sent.");
+          alert(error);
         });
 
 
 });
 
 
-async function getSatelliteInfo(id) {
 
-        satDetailsContract.methods.viewSatDetails('2').call();
+async function updateBlockchainDatabase(id) {
 
-};
+        satDetailsContract.methods.viewSatDetails(id)
+                .call({from: userAccount})
+                .then(function(satConsensus){
+
+                        var myEle = document.getElementById(id);
+
+                        if (myEle){
+
+
+                                $(`#${id}`).html(
+                                `
+                                        <td> ${id} </td>
+                                        <td> ${satConsensus.name} </td>
+                                        <td> ${satConsensus.nationality} </td>
+                                        <td> ${satConsensus.apogee} </td>
+                                        <td> ${satConsensus.perigee} </td>
+                                        <td> ${satConsensus.inclination} </td>
+                                        <td> ${satConsensus.launchDay}-${satConsensus.launchMonth}-${satConsensus.launchYear} </td>
+                                `);
+
+                        }
+
+                        else {
+
+                                $('#satellite_consensus').append(
+                                `
+                                        <tr id=${id}>
+
+                                                <td> ${id} </td>
+                                                <td> ${satConsensus.name} </td>
+                                                <td> ${satConsensus.nationality} </td>
+                                                <td> ${satConsensus.apogee} </td>
+                                                <td> ${satConsensus.perigee} </td>
+                                                <td> ${satConsensus.inclination} </td>
+                                                <td> ${satConsensus.launchDay}-${satConsensus.launchMonth}-${satConsensus.launchYear} </td>
+
+                                        </tr>
+                                `);
+                        }
+
+                });
+
+}
 
 
 $('#view_consensus').click(function(){
 	
-	let id = $('#consensus_id').val()
-
-	satDetailsContract.methods.viewSatDetails(id)
-		.call({from: userAccount})
-		.then(function(satConsensus){
-
-			var myEle = document.getElementById(id);
-
-			if (myEle){
-
-					
-				$(`#${id}`).html(
-				`
-					<td> ${id} </td>
-					<td> ${satConsensus.name} </td>
-					<td> ${satConsensus.nationality} </td>
-					<td> ${satConsensus.apogee} </td>
-					<td> ${satConsensus.perigee} </td>
-					<td> ${satConsensus.inclination} </td>
-					<td> ${satConsensus.launchDay}-${satConsensus.launchMonth}-${satConsensus.launchYear} </td>
-				`);
-
-			}
-			
-			else {
-
-				$('#satellite_consensus').append(
-				`
-					<tr id=${id}>
-
-						<td> ${id} </td>
-						<td> ${satConsensus.name} </td>
-						<td> ${satConsensus.nationality} </td>
-						<td> ${satConsensus.apogee} </td>
-						<td> ${satConsensus.perigee} </td>
-						<td> ${satConsensus.inclination} </td>
-						<td> ${satConsensus.launchDay}-${satConsensus.launchMonth}-${satConsensus.launchYear} </td>
-
-					</tr>
-				`);
-			}
-
-		});
+	let id = $('#consensus_id').val();
+	updateBlockchainDatabase(id);
 
 });
 
@@ -392,18 +408,23 @@ anim.addEventListener('animationend', () => {
                 $('#blockn-4').html(currentBlock-3);
 
                 $('#blockn-4Img').removeClass('blockTransaction');
+		$('#blockn-4Img').removeClass('blockConsensus');
                 $('#blockn-4Img').addClass($("#blockn-3Img").attr("class"));
 
                 $('#blockn-3Img').removeClass('blockTransaction');
-                $('#blockn-3Img').addClass($("#blockn-2Img").attr("class"));
+                $('#blockn-3Img').removeClass('blockConsensus');
+		$('#blockn-3Img').addClass($("#blockn-2Img").attr("class"));
 
                 $('#blockn-2Img').removeClass('blockTransaction');
-                $('#blockn-2Img').addClass($("#blockn-1Img").attr("class"));
+                $('#blockn-2Img').removeClass('blockConsensus');
+		$('#blockn-2Img').addClass($("#blockn-1Img").attr("class"));
 
                 $('#blockn-1Img').removeClass('blockTransaction');
-                $('#blockn-1Img').addClass($("#blocknImg").attr("class"));
+                $('#blockn-1Img').removeClass('blockConsensus');
+		$('#blockn-1Img').addClass($("#blocknImg").attr("class"));
 
                 $('#blocknImg').removeClass('blockTransaction');
+                $('#blocknImg').removeClass('blockConsensus');
 
 });
 
@@ -425,9 +446,6 @@ function startBlockAnimation(){
 }
 
 function startApp() {
-
-	satDetailsContract = new web3js.eth.Contract(satDetailsABI, '{{ satDetails_address }}');
-	oracleContract = new web3js.eth.Contract(oracleABI, '{{ oracle_address }}');
 
 	setInterval(function() {
   	// Check if account has changed
@@ -457,16 +475,94 @@ async function onInit() {
     }
 
 
+async function replyEventListener() {
+
+        oracleContract.events.FulfilledRequest({
+        }, function(error, event){ console.log(event); })
+        .on("connected", function(subscriptionId){
+                console.log(subscriptionId);
+        })
+        .on('data', function(event){
+                var chainlinkNodeAddress = event.returnValues["chainlinkNode"];
+		
+		if (chainlinkNodeAddress == honestNode1) {
+			$('#honest_node_1').addClass('greenBackgroundAnimation');
+		}
+		else if (chainlinkNodeAddress == honestNode2) {
+                        $('#honest_node_2').addClass('greenBackgroundAnimation');
+		 }
+		else if (chainlinkNodeAddress == honestNode3) {
+                        $('#honest_node_3').addClass('greenBackgroundAnimation');
+		}
+		else if (chainlinkNodeAddress == badNode1){
+                        $('#bad_node_1').addClass('greenBackgroundAnimation');
+		}
+		else {
+			console.log("Replier address does not correspond to any chainlinnk node indicated");
+		}
+        })
+        .on('changed', function(event){
+                // remove event from local database
+                alert("Something changed");
+        })
+        .on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
+                alert("Something went wrong with the event");
+        });
+
+
+}
+
+
+async function consensusEventListener() {
+
+	satDetailsContract.events.SatConsensus({fromBlock: 1000000, toBlock: "latest"
+	}, function(error, event){ console.log(event); })
+	.on("connected", function(subscriptionId){
+		console.log(subscriptionId);
+	})
+	.on('data', function(event){
+		var satConsensusId = event.returnValues["satId"];
+		updateBlockchainDatabase(satConsensusId);
+
+		// Avoid coloring when going through old events
+		if(Math.abs(event.blockNumber-currentBlock) < 3) {
+
+			$('#blocknImg').addClass('blockConsensus');
+		}
+
+	})
+	.on('changed', function(event){
+		// remove event from local database
+		alert("Something changed");
+	})
+	.on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
+		alert("Something went wrong with the event");
+	});
+
+
+}
+
+
 window.addEventListener('load', function() {
 
-  // Checking if Web3 has been injected by the browser (Mist/MetaMask)
-  if (typeof web3 !== 'undefined') {
-    // Use Mist/MetaMask's provider
-    web3js = new Web3(web3.currentProvider);
-    web3Infura = new Web3(
-    // Replace YOUR-PROJECT-ID with a Project ID from your Infura Dashboard
-	    new Web3.providers.WebsocketProvider("{{ infura_url }}")
-);
+	// Checking if Web3 has been injected by the browser (Mist/MetaMask)
+  	if (typeof web3 !== 'undefined') {
+    		// Use Mist/MetaMask's provider
+    		web3js = new Web3(web3.currentProvider);
+		web3Infura = new Web3(
+    		// Replace YOUR-PROJECT-ID with a Project ID from your Infura Dashboard
+	    	new Web3.providers.WebsocketProvider("{{ infura_url }}")
+		);
+
+        	satDetailsContract = new web3js.eth.Contract(satDetailsABI, '{{ satDetails_address }}');
+        	oracleContract = new web3js.eth.Contract(oracleABI, '{{ oracle_address }}');
+
+        	// Now you can start your app & access web3js freely:
+		onInit();
+		replyEventListener();
+		consensusEventListener();
+		startApp();
+
   } else {
     // Handle the case where the user doesn't have web3. Probably
     // show them a message telling them to install Metamask in
@@ -474,11 +570,10 @@ window.addEventListener('load', function() {
 	  alert("INSTALL METAMASK IN ORDER TO SEND TRANSACTIONS");
   }
 
-  // Now you can start your app & access web3js freely:
-  onInit();
-  startApp();
 
 })
+
+
 
 </script>
 
