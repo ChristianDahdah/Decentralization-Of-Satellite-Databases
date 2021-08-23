@@ -15,9 +15,6 @@
 
     <style>
 	
-	.greenBackgroundAnimation {
-		background-color: green;
-	}
 
 	.blockNumber{
 		position: absolute;
@@ -26,83 +23,98 @@
 	}
 
         .leftBlock, .middleBlock, .rightBlock{
-          position: relative;
-          left: var(--leftshift);
+         	position: relative;
+          	left: var(--leftshift);
         }
 	
 	.rightBlock{
-	  opacity: 0;
+		opacity: 0;
 	}
 
 	:root{
-	  --leftshift: calc(50% - 652px);
+		--leftshift: calc(50% - 652px);
 	}
 	
 	.middleBlockAnimation  {
-	  animation: right-to-left 2.5s ease-in-out forwards;
-	  animation-delay: 0s;
-	  animation-play-state: running;
+		animation: right-to-left 2.5s ease-in-out forwards;
+		animation-delay: 0s;
+		animation-play-state: running;
 	}
 	
 	.leftBlockAnimation {
-          animation: right-to-left-hide 2.5s ease-in-out forwards;
-          animation-delay: 0s;
-	  animation-play-state: running;
+        	animation: right-to-left-hide 2.5s ease-in-out forwards;
+        	animation-delay: 0s;
+		animation-play-state: running;
 	}
 
 	.rightBlockAnimation {
-          animation:  pop-up 2.5s ease-in-out forwards;
-          animation-delay: 0s;
-	  animation-play-state: running;
+      		animation:  pop-up 2.5s ease-in-out forwards;
+        	animation-delay: 0s;
+		animation-play-state: running;
 	}
+
+        .greenBackgroundAnimation {
+                animation: white-green-background 2s ease-in-out forwards;
+                animation-play-state: running;
+        }
+
+        @keyframes white-green-background {
+                0% {
+                        background-color: white;
+                }
+
+                100% {
+                        background-color: #00FF00;
+                }
+        }
+
 	
         @keyframes right-to-left {
-          0% {
-            left: var(--leftshift);
-          }
+        	0% {
+          		left: var(--leftshift);
+        	}
 
-          33% {
-            left: var(--leftshift);
-          }
+        	33% {
+          		left: var(--leftshift);
+          	}
 
-          100% {
-            left: calc(var(--leftshift) - 163px);
-          }
+          	100% {
+            		left: calc(var(--leftshift) - 163px);
+          	}
         }
 
 	@keyframes right-to-left-hide {
-	  0% {
-	    left: var(--leftshift);
-	    opacity: 100;
-	  }
+		0% {
+	    		left: var(--leftshift);
+	    		opacity: 100;
+	  	}
 
-          33% {
-            left: var(--leftshift);
-            opacity: 100;
-          }
+          	33% {
+            		left: var(--leftshift);
+            		opacity: 100;
+          	}
 
-	  
-	  100% {
-	    left: calc(var(--leftshift) - 163px);
-	    opacity: 0;
-	  }
+	  	100% {
+	    		left: calc(var(--leftshift) - 163px);
+	    		opacity: 0;
+	  	}
 	}
 	
 	@keyframes pop-up {
-	  0% {
-	    left: var(--leftshift);
-	    opacity: 0;
-	  }
+		0% {
+	    		left: var(--leftshift);
+	    		opacity: 0;
+	  	}
 
-	  33% {
-	    left: var(--leftshift);
-	    opacity: 100;
-	  }
-	  100% {
-            left: calc(var(--leftshift) - 163px);
-	    opacity: 100;
-	  }
-
+	  	33% {
+	    		left: var(--leftshift);
+	    		opacity: 100;
+	  	}
+	  
+		100% {
+            		left: calc(var(--leftshift) - 163px);
+	    	opacity: 100;
+	  	}
 	}
 
 	img.block {
