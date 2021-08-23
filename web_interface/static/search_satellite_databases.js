@@ -1,14 +1,18 @@
-$('#search_databases').click(function() {
+$(function(){
 
-$.ajax({
-	type: "POST",
-	url: "/satellite_demo/search_satellite_databases",
-	data: { 
-	'satellite_id' : $('#satellite_id').val(),
-	'csrfmiddlewaretoken' : $("input[name=csrfmiddlewaretoken]").val()
-	},
-	success: searchSuccess,
-	dataType: 'html'
+	$('#search_databases').click(function() {
+
+		$.ajax({
+			type: "POST",
+			url: "/satellite_demo/search_satellite_databases",
+			data: { 
+			'satellite_id' : $('#satellite_id').val(),
+			'csrfmiddlewaretoken' : $("input[name=csrfmiddlewaretoken]").val()
+			},
+			success: searchSuccess,
+			dataType: 'html'
+		});
+
 	});
 
 });
