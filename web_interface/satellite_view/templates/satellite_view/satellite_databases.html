@@ -11,15 +11,18 @@
 
         {% for database, details in sat_details.items %}
 
-	<tr>
                                 {% if database == "honest_node_1" %}
+				<tr id="honest_node_1">
                                 <td> <img class="logo_cnes" src="https://www.esa.int/var/esa/storage/images/esa_multimedia/images/2009/02/cnes_logo/9496749-4-eng-GB/CNES_Logo_pillars.jpg" alt="CNES"> </td>
                                 {% elif database == "honest_node_2" %}
-                                <td> <img class="logo_nasa" src="https://www.nasa.gov/sites/default/files/thumbnails/image/s75-31690.jpeg" alt="NASA"> </td>
+                                <tr id="honest_node_2">
+				<td id="honest_node_2"> <img class="logo_nasa" src="https://www.nasa.gov/sites/default/files/thumbnails/image/s75-31690.jpeg" alt="NASA"> </td>
                                 {% elif database == "honest_node_3" %}
-                                <td> <img class="logo_roscosmos" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Roscosmos_logo_en.svg/1280px-Roscosmos_logo_en.svg.png" alt="ROSCOSMOS"></td>
+                                <tr id="honest_node_3">
+				<td id="honest_node_3"> <img class="logo_roscosmos" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Roscosmos_logo_en.svg/1280px-Roscosmos_logo_en.svg.png" alt="ROSCOSMOS"></td>
                                 {% elif database == "bad_node_1" %}
-                                        <td style="color: red"> Bad node  </td>
+                                <tr id="bad_node_1">
+				<td style="color: red" id="bad_node_1"> Bad node  </td>
                                 {% endif %}
 
 
