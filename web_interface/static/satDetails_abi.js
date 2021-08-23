@@ -68,7 +68,7 @@ var satDetailsABI = [
 			{
 				"indexed": true,
 				"internalType": "uint256",
-				"name": "_satId",
+				"name": "satId",
 				"type": "uint256"
 			}
 		],

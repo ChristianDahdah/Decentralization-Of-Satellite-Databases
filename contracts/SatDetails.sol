@@ -53,7 +53,7 @@ contract SatDetails is ChainlinkClient, Ownable {
 
   
   event SatConsensus(
-    uint indexed _satId
+    uint indexed satId
   );
 
  
