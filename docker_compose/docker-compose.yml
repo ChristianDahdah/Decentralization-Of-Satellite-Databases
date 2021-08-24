@@ -89,3 +89,15 @@ services:
     depends_on:
       - "postgres_link"
       - "retrieve_sat_details_4"
+
+  web_interface:
+    image: web_server
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env_web_interface
+    depends_on:
+      - "honest_node_1"
+      - "honest_node_2"
+      - "honest_node_3"
+      - "bad_node_1"

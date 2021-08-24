@@ -11,5 +11,6 @@
 *.postgres_password
 **/.postgres_database/
 **/.postgres_database_test/
+**/.env_web_interface
 cookie
 cookiefile
