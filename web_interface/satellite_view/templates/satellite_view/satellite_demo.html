@@ -58,6 +58,21 @@
                 animation-play-state: running;
         }
 
+	.fadeInConsensusAnimation {
+                animation: hidden-visible 1.5s ease-in-out forwards;
+                animation-play-state: running;
+	}
+
+	@keyframes hidden-visible {
+		0% {
+			opacity: 0%;
+		}
+
+		100% {
+			opacity: 100%;
+		}
+	}
+
         @keyframes white-green-background {
                 0% {
                         background-color: white;
@@ -359,8 +374,7 @@ async function updateBlockchainDatabase(id) {
                         var myEle = document.getElementById(id);
 
                         if (myEle){
-
-
+				
                                 $(`#${id}`).html(
                                 `
                                         <td> ${id} </td>
@@ -372,13 +386,15 @@ async function updateBlockchainDatabase(id) {
                                         <td> ${satConsensus.launchDay}-${satConsensus.launchMonth}-${satConsensus.launchYear} </td>
                                 `);
 
+				myEle.classList.add("fadeInConsensusAnimation");
+				removeFadeInClass(myElem);
                         }
 
                         else {
 
                                 $('#satellite_consensus').append(
                                 `
-                                        <tr id=${id}>
+                                        <tr id=${id} class="fadeInConsensusAnimation">
 
                                                 <td> ${id} </td>
                                                 <td> ${satConsensus.name} </td>
@@ -390,6 +406,10 @@ async function updateBlockchainDatabase(id) {
 
                                         </tr>
                                 `);
+				
+				var myElem = document.getElementById(id);
+                                removeFadeInClass(myElem);
+
                         }
 
                 });
@@ -405,9 +425,19 @@ $('#view_consensus').click(function(){
 });
 
 
-var anim = document.getElementById("rightBlockDiv");
+async function removeFadeInClass(fadeInAnimElem) {
 
-anim.addEventListener('animationend', () => {
+	fadeInAnimElem.addEventListener('animationend', () => {
+
+		fadeInAnimElem.classList.remove("fadeInConsensusAnimation");
+
+	});
+}
+
+
+var blockAnim = document.getElementById("rightBlockDiv");
+
+blockAnim.addEventListener('animationend', () => {
 
                 $('.leftBlock').removeClass('leftBlockAnimation');
                 $('.middleBlock').removeClass('middleBlockAnimation');
@@ -538,7 +568,6 @@ async function consensusEventListener() {
 
 		// Avoid coloring when going through old events
 		if(Math.abs(event.blockNumber-currentBlock) < 3) {
-
 			$('#blocknImg').addClass('blockConsensus');
 		}
 
