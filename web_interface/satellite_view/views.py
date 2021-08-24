@@ -2,8 +2,6 @@ from django.http import HttpResponse
 from django.shortcuts import render
 import psycopg2
 import os
-from web3 import Web3
-
 
 def get_node_db(request):
     
@@ -135,18 +133,6 @@ def satellite_demo(request):
 
 
     return render(request, 'satellite_view/satellite_demo.html', locals())
-
-
-# Getting actual block number
-def get_block_number(request):
-    
-    infura_url = os.getenv("INFURA_URL")
-    
-    w3 = Web3(Web3.HTTPProvider(infura_url))
-    
-    block_number = str(w3.eth.block_number)
-
-    return render(request, 'satellite_view/get_block_number.html', locals())
 
 # Getting responses
 def get_responses(request):
