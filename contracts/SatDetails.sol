@@ -8,9 +8,13 @@ import "./Median.sol";
 contract SatDetails is ChainlinkClient, Ownable {
   uint256 constant private ORACLE_PAYMENT = 1 * LINK;
 
+  // mapping to avoid requesting same satellite more than once
+  mapping (uint256 => bool) satRequested;
+
   /*
     Structures and mapping related to the final information preserved
   */
+  
   struct satDetailsStruct{
       bytes12 name; // Maximum 12 characters
       bytes4 nationality; // 4 bytes <==> 4 letters per country max
@@ -20,15 +24,13 @@ contract SatDetails is ChainlinkClient, Ownable {
       uint32 launchDate; // Number of seconds since 4 octobre 1957 00:00 am (launch day of Sputnik 1)
   }
 
-  // mapping (bytes12 => uint256) satNameToId;
-  
   mapping (uint256 => satDetailsStruct) satDetailsMapping;
-  
-  
+
+
   /*
     Information related to the consensus
   */
-  
+
   struct occurenceStruct{
       mapping (bytes4 => uint8) nationalityOcc;
       mapping (bytes12 => uint8) nameOcc;
@@ -39,69 +41,70 @@ contract SatDetails is ChainlinkClient, Ownable {
       // Needed to track who answered to not let him submit multiple times
       mapping (address => bool) participants;
   }
-  
+
   // maps sat id to the occurences
   mapping (uint256 => occurenceStruct) satOccurenceMapping;
-  
+
   // maps requestId to the satId
   mapping (bytes32 => uint256) requestSatIdMapping;
-  
+
 
   constructor() public Ownable() {
     setPublicChainlinkToken();
   }
 
-  
+
   event SatConsensus(
     uint indexed satId
   );
 
- 
+
   function requestSatDetails(address _oracle, string memory _jobId, uint _satId) public onlyOwner
   {
+    require(satRequested[_satId] == false, "Satellite Id already requested");
+    satRequested[_satId] = true;
     string memory satId = uint2str(_satId);
     Chainlink.Request memory req = buildChainlinkRequest(stringToBytes32(_jobId), address(this), this.fulfillSatDetails.selector);
     req.add("satId", satId);
     bytes32 requestId = sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
     requestSatIdMapping[requestId] = _satId;
-  }  
-  
-  
+  }
+
+
   function fulfillSatDetails(bytes32 _requestId, uint _data) public recordChainlinkFulfillment(_requestId)
   {
-    
+
     uint _satId = requestSatIdMapping[_requestId];
-    
+
     // Checking if address already answered
     // require(satOccurenceMapping[_satId].participants[msg.sender]==false, "Oracle already answered");
-    
+
     // Unpacking variables
     (bytes4 _nationality, bytes12 _name, uint32 _apogee, uint32 _perigee, uint32 _inclination, uint32 _launchDate) = decodeInput(_data);
-    
+
     satOccurenceMapping[_satId].participants[msg.sender]=true;
-    
+
     /* Updating relative fields */
-    
+
     // Updating the occurences of details
     satOccurenceMapping[_satId].nationalityOcc[_nationality] += 1;
     satOccurenceMapping[_satId].nameOcc[_name] += 1;
-    
+
     satOccurenceMapping[_satId].apogeeOcc.push(_apogee);
     satOccurenceMapping[_satId].perigeeOcc.push(_perigee);
     satOccurenceMapping[_satId].inclinationOcc.push(_inclination);
     satOccurenceMapping[_satId].launchDateOcc.push(_launchDate);
-    
+
     // Doing consensus on the values emitted
     consensusSatDetails(_satId, _nationality, _name);
-    
-    // emit RequestSatNameFulfilled(_requestId, convertedString);
+
   }
-  
- 
-  
+
+
+
   function decodeInput(uint _data) pure internal returns (bytes4 _nationality, bytes12 _name, uint32 _apogee, uint32 _perigee, uint32 _inclination, uint32 _launchDate) {
-        
-        // Declarations of (_satId, _nationality ...) were made in the return  
+
+        // Declarations of (_satId, _nationality ...) were made in the return
         assembly {
         /* Old values */
         //   _satId := sar(224, _data)
@@ -109,7 +112,7 @@ contract SatDetails is ChainlinkClient, Ownable {
         //   _apogee := sar(160, _data)
         //   _perigee := sar(128, _data)
         //   _inclination := sar(96, _data)
-        
+
         _nationality := add(0x0, _data)
         _name := add(0x0, shl(32, _data))
         _apogee := sar(96, _data)
@@ -117,11 +120,11 @@ contract SatDetails is ChainlinkClient, Ownable {
         _inclination := sar(32, _data)
         // Number of seconds since 4 octobre 1957 00:00 am (launch day of Sputnik 1)
         _launchDate := sar(0, _data)
-        
+
         }
-      
+
   }
-  
+
   function consensusSatDetails(uint256 _satId, bytes4 _nationality, bytes12 _name) internal {
       // Checking if number of replies is sufficient
       if (satOccurenceMapping[_satId].apogeeOcc.length >= 3){
@@ -129,22 +132,24 @@ contract SatDetails is ChainlinkClient, Ownable {
         satDetailsMapping[_satId].perigee = Median.calculateInplace(satOccurenceMapping[_satId].perigeeOcc);
         satDetailsMapping[_satId].inclination = Median.calculateInplace(satOccurenceMapping[_satId].inclinationOcc);
         satDetailsMapping[_satId].launchDate = Median.calculateInplace(satOccurenceMapping[_satId].launchDateOcc);
-        
-        
-      // Update nationality only if enough addresses agree on the same one
-      if(satOccurenceMapping[_satId].nationalityOcc[_nationality] >= 3 /* && satDetailsMapping[_satId].nationality == "" */){
+
+
+        // Update nationality only if enough addresses agree on the same one
+        if(satOccurenceMapping[_satId].nationalityOcc[_nationality] >= 3 /* && satDetailsMapping[_satId].nationality == "" */){
          satDetailsMapping[_satId].nationality = _nationality;
-      }
-      
-      // Update name only if enough addresses agree on the same one
-      if(satOccurenceMapping[_satId].nameOcc[_name] >= 3 /* && satDetailsMapping[_satId].name == "" */){
+        }
+        
+        // Update name only if enough addresses agree on the same one
+        if(satOccurenceMapping[_satId].nameOcc[_name] >= 3 /* && satDetailsMapping[_satId].name == "" */){
          satDetailsMapping[_satId].name = _name;
-      // satNameToId[_name] = _satId;
-      }
-          emit SatConsensus(_satId);
+        // satNameToId[_name] = _satId;
+        }
+      
+        emit SatConsensus(_satId);
+          
       }
   }
-  
+
 
   function getChainlinkToken() public view returns (address) {
     return chainlinkTokenAddress();
@@ -166,8 +171,8 @@ contract SatDetails is ChainlinkClient, Ownable {
   {
     cancelChainlinkRequest(_requestId, _payment, _callbackFunctionId, _expiration);
   }
-  
-  
+
+
   // Helper functions
   function stringToBytes32(string memory source) private pure returns (bytes32 result) {
     bytes memory tempEmptyStringTest = bytes(source);
@@ -179,7 +184,7 @@ contract SatDetails is ChainlinkClient, Ownable {
       result := mload(add(source, 32))
     }
   }
-  
+
     function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
         uint8 i = 0;
         while(i < 32 && _bytes32[i] != 0) {
@@ -192,7 +197,7 @@ contract SatDetails is ChainlinkClient, Ownable {
         return string(bytesArray);
     }
 
-  
+
 function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
         if (_i == 0) {
             return "0";
@@ -215,9 +220,9 @@ function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
         return string(bstr);
     }
 
-    
-    function viewSatDetails (uint _satId) view public 
-    returns (uint satId, 
+
+    function viewSatDetails (uint _satId) view public
+    returns (uint satId,
             string memory name,
             string memory nationality,
             uint32 apogee,
@@ -226,7 +231,7 @@ function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
             uint32 launchYear,
             uint32 launchMonth,
             uint32 launchDay){
-    
+
         satId = _satId;
         name = bytes32ToString(satDetailsMapping[_satId].name);
         nationality = bytes32ToString(satDetailsMapping[_satId].nationality);
@@ -236,7 +241,7 @@ function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
         launchYear = satDetailsMapping[_satId].launchDate / uint32(10000);
         launchMonth = (satDetailsMapping[_satId].launchDate % uint32(10000)) / uint32(100);
         launchDay = satDetailsMapping[_satId].launchDate % uint32(100);
-        
+
     }
-    
+
 }
