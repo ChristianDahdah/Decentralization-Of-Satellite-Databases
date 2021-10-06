@@ -76,9 +76,6 @@ contract SatDetails is ChainlinkClient, Ownable {
 
     uint _satId = requestSatIdMapping[_requestId];
 
-    // Checking if address already answered
-    // require(satOccurenceMapping[_satId].participants[msg.sender]==false, "Oracle already answered");
-
     // Unpacking variables
     (bytes4 _nationality, bytes12 _name, uint32 _apogee, uint32 _perigee, uint32 _inclination, uint32 _launchDate) = decodeInput(_data);
 
@@ -106,12 +103,6 @@ contract SatDetails is ChainlinkClient, Ownable {
 
         // Declarations of (_satId, _nationality ...) were made in the return
         assembly {
-        /* Old values */
-        //   _satId := sar(224, _data)
-        //   _nationality := add(0x0, shl(32, _data))
-        //   _apogee := sar(160, _data)
-        //   _perigee := sar(128, _data)
-        //   _inclination := sar(96, _data)
 
         _nationality := add(0x0, _data)
         _name := add(0x0, shl(32, _data))
@@ -198,7 +189,7 @@ contract SatDetails is ChainlinkClient, Ownable {
     }
 
 
-function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
+  function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
         if (_i == 0) {
             return "0";
         }
@@ -221,7 +212,7 @@ function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
     }
 
 
-    function viewSatDetails (uint _satId) view public
+  function viewSatDetails (uint _satId) view public
     returns (uint satId,
             string memory name,
             string memory nationality,

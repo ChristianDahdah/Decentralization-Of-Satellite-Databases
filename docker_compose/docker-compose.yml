@@ -2,7 +2,7 @@ version: '3'
 
 services:
   postgres_link:
-    image: postgres
+    image: postgres:latest
     ports:
       - "5432:5432"
     volumes:
@@ -31,7 +31,7 @@ services:
       - ./.bad_node_1/.env
 
   honest_node_1:
-    image: smartcontract/chainlink:latest
+    image: smartcontract/chainlink:0.10.14
     ports:
       - "6687:6688"
     env_file:
@@ -46,7 +46,7 @@ services:
       - "retrieve_sat_details_1"
 
   honest_node_2:
-    image: smartcontract/chainlink:latest
+    image: smartcontract/chainlink:0.10.14
     ports:
       - "6686:6688"
     env_file:
@@ -61,7 +61,7 @@ services:
       - "retrieve_sat_details_2"
 
   honest_node_3:
-    image: smartcontract/chainlink:latest
+    image: smartcontract/chainlink:0.10.14
     ports:
       - "6685:6688"
     env_file:
@@ -76,7 +76,7 @@ services:
       - "retrieve_sat_details_3"
 
   bad_node_1:
-    image: smartcontract/chainlink:latest
+    image: smartcontract/chainlink:0.10.14
     ports:
       - "6684:6688"
     env_file:

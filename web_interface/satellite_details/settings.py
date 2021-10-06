@@ -28,7 +28,7 @@ DEBUG = True
 
 # To allow access from outside uncomment the line below
 # ALLOWED_HOSTS = ['*']
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.1.34']
 
 
 # Application definition
